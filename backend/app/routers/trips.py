@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status  # pyright: ignore[reportMissingImports]
+from fastapi import APIRouter, Depends, HTTPException, Response, status  # pyright: ignore[reportMissingImports]
 from sqlalchemy.orm import Session  # pyright: ignore[reportMissingImports]
 
 from app import models, schemas
@@ -41,14 +41,14 @@ async def create_trip(
 
 
 @router.delete("/trips/{trip_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_trip(trip_id: int, db: Session = Depends(get_db)) -> None:
+async def delete_trip(trip_id: int, db: Session = Depends(get_db)) -> Response:
     success = await trips_service.delete_trip(db, trip_id)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Trip not found.",
         )
-    return None
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post("/trips/{trip_id}/launch", response_model=schemas.TripHistory)
