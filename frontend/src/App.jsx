@@ -1,14 +1,9 @@
 /**
- * App.jsx — Root component with React Router v6 and
- * bottom tab bar navigation.
- *
- * Tabs: Home, Chat, Trips, History, Logs
- * All following CLAUDE.md UI rules: 48px touch targets,
- * bottom nav, mobile-first layout.
+ * App.jsx — Root component with React Router v6.
+ * School bus themed bottom tab bar navigation.
  */
 import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom';
 
-// Screen components
 import HomeScreen from './screens/HomeScreen';
 import ChatScreen from './screens/ChatScreen';
 import PreviewScreen from './screens/PreviewScreen';
@@ -17,21 +12,17 @@ import TripDetailScreen from './screens/TripDetailScreen';
 import HistoryScreen from './screens/HistoryScreen';
 import LLMLogsScreen from './screens/LLMLogsScreen';
 
-// ── Tab config ───────────────────────────────
-
 const TABS = [
-    { path: '/', label: 'Home', icon: '🏠' },
-    { path: '/chat', label: 'Chat', icon: '💬' },
-    { path: '/trips', label: 'Trips', icon: '🗺️' },
-    { path: '/history', label: 'History', icon: '📋' },
-    { path: '/admin/logs', label: 'Logs', icon: '📊' },
+    { path: '/', label: 'Home', icon: '🏠', activeIcon: '🏡' },
+    { path: '/chat', label: 'Chat', icon: '💬', activeIcon: '🗨️' },
+    { path: '/trips', label: 'Trips', icon: '🗺️', activeIcon: '🚌' },
+    { path: '/history', label: 'History', icon: '📋', activeIcon: '📖' },
+    { path: '/admin/logs', label: 'Logs', icon: '📊', activeIcon: '📈' },
 ];
-
-// ── Bottom Tab Bar ───────────────────────────
 
 function BottomTabBar() {
     return (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-gray-200 safe-area-bottom">
+        <nav className="fixed bottom-0 left-0 right-0 z-50 glass-bar border-t border-chalk-200 safe-area-bottom">
             <div className="flex justify-around items-center h-16 max-w-lg mx-auto">
                 {TABS.map((tab) => (
                     <NavLink
@@ -39,14 +30,25 @@ function BottomTabBar() {
                         to={tab.path}
                         end={tab.path === '/'}
                         className={({ isActive }) =>
-                            `flex flex-col items-center justify-center min-w-touch min-h-touch px-2 py-1 rounded-lg transition-colors duration-150 ${isActive
-                                ? 'text-primary font-semibold'
-                                : 'text-secondary hover:text-body'
+                            `flex flex-col items-center justify-center min-w-touch min-h-touch px-2 py-1 rounded-xl transition-all duration-200 ${isActive
+                                ? 'text-bus-800 font-semibold scale-110'
+                                : 'text-chalk-500 hover:text-chalk-700'
                             }`
                         }
                     >
-                        <span className="text-xl leading-none">{tab.icon}</span>
-                        <span className="text-xs mt-1">{tab.label}</span>
+                        {({ isActive }) => (
+                            <>
+                                <span className={`text-xl leading-none transition-transform duration-200 ${isActive ? 'scale-110' : ''}`}>
+                                    {isActive ? tab.activeIcon : tab.icon}
+                                </span>
+                                <span className={`text-[11px] mt-0.5 transition-colors ${isActive ? 'text-bus-700' : ''}`}>
+                                    {tab.label}
+                                </span>
+                                {isActive && (
+                                    <div className="absolute bottom-1 w-1 h-1 rounded-full bg-bus-500" />
+                                )}
+                            </>
+                        )}
                     </NavLink>
                 ))}
             </div>
@@ -54,17 +56,12 @@ function BottomTabBar() {
     );
 }
 
-// ── App Shell ────────────────────────────────
-
 function AppShell() {
     const location = useLocation();
-
-    // Hide bottom nav on preview screen (needs full viewport)
     const hideTabBar = location.pathname.startsWith('/preview');
 
     return (
         <div className="flex flex-col min-h-screen bg-background">
-            {/* Main content area — leave room for bottom tab bar */}
             <main className={`flex-1 overflow-y-auto ${hideTabBar ? '' : 'pb-20'}`}>
                 <Routes>
                     <Route path="/" element={<HomeScreen />} />
@@ -76,13 +73,10 @@ function AppShell() {
                     <Route path="/admin/logs" element={<LLMLogsScreen />} />
                 </Routes>
             </main>
-
             {!hideTabBar && <BottomTabBar />}
         </div>
     );
 }
-
-// ── Root Export ───────────────────────────────
 
 export default function App() {
     return (

@@ -1,8 +1,5 @@
 /**
- * ChatInput.jsx — Full-width text input + send button.
- *
- * Disabled while loading. Send on Enter or button tap.
- * Both input and button meet 48px touch target minimum.
+ * ChatInput.jsx — Themed chat input with school bus colors.
  */
 import { useState } from 'react';
 import VoiceInputButton from './VoiceInputButton';
@@ -25,14 +22,12 @@ export default function ChatInput({ onSend, loading = false }) {
     };
 
     return (
-        <div className="flex items-end gap-2 p-3 bg-card border-t border-gray-200">
-            {/* Voice input */}
+        <div className="flex items-end gap-2 p-3 glass-bar border-t border-chalk-200">
             <VoiceInputButton
                 onTranscript={(transcript) => setText((prev) => prev + transcript)}
                 disabled={loading}
             />
 
-            {/* Text field */}
             <input
                 type="text"
                 value={text}
@@ -40,18 +35,19 @@ export default function ChatInput({ onSend, loading = false }) {
                 onKeyDown={handleKeyDown}
                 placeholder={loading ? 'Thinking…' : 'Describe your route…'}
                 disabled={loading}
-                className="flex-1 min-h-touch rounded-xl border border-gray-300 px-4 py-3 text-base text-body bg-background placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50"
+                className="flex-1 min-h-touch rounded-2xl border border-chalk-300 px-4 py-3 text-base text-body bg-chalk-50 placeholder:text-chalk-400 disabled:opacity-50"
             />
 
-            {/* Send button */}
             <button
                 onClick={handleSubmit}
                 disabled={loading || !text.trim()}
-                className="min-w-touch min-h-touch rounded-xl bg-primary hover:bg-blue-700 active:bg-blue-800 text-white flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="min-w-touch min-h-touch rounded-2xl btn-primary flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
                 aria-label="Send message"
             >
                 {loading ? (
-                    <span className="animate-spin text-xl">⏳</span>
+                    <span className="typing-dots">
+                        <span /><span /><span />
+                    </span>
                 ) : (
                     <span className="text-xl">➤</span>
                 )}

@@ -1,57 +1,53 @@
 /**
- * SemanticSearchBar.jsx — Debounced search input for trips.
- *
- * Calls GET /trips/search?q=... with 300ms debounce.
- * Shows similarity score badges on results.
+ * SemanticSearchBar.jsx — Themed search bar with school bus colors.
  */
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import useTripStore from '../store/tripStore';
 
 export default function SemanticSearchBar() {
+    const { searchTrips, clearSearch } = useTripStore();
     const [query, setQuery] = useState('');
-    const { searchTrips, searchResults, loading } = useTripStore();
-    const debounceRef = useRef(null);
+    const timerRef = useRef(null);
 
-    useEffect(() => {
-        // Clear previous timer
-        if (debounceRef.current) clearTimeout(debounceRef.current);
+    const handleChange = useCallback((e) => {
+        const value = e.target.value;
+        setQuery(value);
 
-        if (!query.trim()) {
-            // Clear results when query is empty
-            useTripStore.getState().searchTrips('');
+        clearTimeout(timerRef.current);
+
+        if (!value.trim()) {
+            clearSearch();
             return;
         }
 
-        // 300ms debounce per CLAUDE.md
-        debounceRef.current = setTimeout(() => {
-            searchTrips(query.trim());
+        timerRef.current = setTimeout(() => {
+            searchTrips(value.trim());
         }, 300);
+    }, [searchTrips, clearSearch]);
 
-        return () => {
-            if (debounceRef.current) clearTimeout(debounceRef.current);
-        };
-    }, [query, searchTrips]);
+    const handleClear = () => {
+        setQuery('');
+        clearSearch();
+    };
 
     return (
-        <div className="w-full">
-            {/* Search input */}
-            <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary text-lg">
-                    🔍
-                </span>
-                <input
-                    type="text"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search trips… (e.g. school run)"
-                    className="w-full min-h-touch rounded-xl border border-gray-300 pl-11 pr-4 py-3 text-base text-body bg-card placeholder:text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                />
-                {loading && query && (
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-lg">
-                        ⏳
-                    </span>
-                )}
-            </div>
+        <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-chalk-400 text-lg">🔍</span>
+            <input
+                type="text"
+                value={query}
+                onChange={handleChange}
+                placeholder="Search trips by meaning…"
+                className="w-full min-h-touch rounded-2xl border border-chalk-300 pl-11 pr-10 py-3 text-base text-body bg-chalk-50 placeholder:text-chalk-400"
+            />
+            {query && (
+                <button
+                    onClick={handleClear}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-chalk-200 hover:bg-chalk-300 flex items-center justify-center text-chalk-600 text-sm transition-colors"
+                >
+                    ✕
+                </button>
+            )}
         </div>
     );
 }

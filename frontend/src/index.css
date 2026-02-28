@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Google Font ──────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 /* ── Global base styles ───────────────────── */
 
 *,
@@ -22,8 +25,8 @@ body {
     min-height: 100dvh;
     font-size: 16px;
     line-height: 1.5;
-    color: #111827;
-    background-color: #F9FAFB;
+    color: #1E1A14;
+    background-color: #FEFCF8;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -56,7 +59,7 @@ a,
     }
 }
 
-/* ── Slide-up animation for modals ──────── */
+/* ── Custom animations ────────────────────── */
 
 @keyframes slide-up {
     from {
@@ -71,5 +74,148 @@ a,
 }
 
 .animate-slide-up {
-    animation: slide-up 0.25s ease-out;
+    animation: slide-up 0.3s ease-out;
+}
+
+/* Typing dots animation */
+.typing-dots span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #9A8E7E;
+    margin: 0 2px;
+    animation: pulse-dot 1.4s infinite ease-in-out both;
+}
+
+.typing-dots span:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.typing-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes pulse-dot {
+
+    0%,
+    80%,
+    100% {
+        transform: scale(0.6);
+        opacity: 0.4;
+    }
+
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Skeleton shimmer */
+.skeleton {
+    background: linear-gradient(90deg, #F5EFE6 25%, #FDF8EF 50%, #F5EFE6 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Card hover lift effect */
+.card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 24px rgba(30, 26, 20, 0.10);
+}
+
+.card-hover:active {
+    transform: scale(0.98);
+}
+
+/* Bus stripe accent — decorative top bar */
+.bus-stripe {
+    background: linear-gradient(135deg, #FFB800 0%, #FFCC1A 50%, #FFE680 100%);
+}
+
+/* Frosted glass effect for tab bar */
+.glass-bar {
+    background: rgba(254, 252, 248, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* Focus ring style */
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 184, 0, 0.3);
+    border-color: #FFB800;
+}
+
+/* Primary button glow on hover */
+.btn-primary {
+    background: linear-gradient(135deg, #FFB800 0%, #FFCC1A 100%);
+    color: #1E1A14;
+    font-weight: 600;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    box-shadow: 0 0 20px rgba(255, 184, 0, 0.35);
+    transform: translateY(-1px);
+}
+
+.btn-primary:active {
+    transform: scale(0.97);
+    box-shadow: none;
+}
+
+.btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* Chip buttons */
+.chip {
+    background: #FFF0B3;
+    color: #664A00;
+    border: 1px solid #FFE680;
+    transition: all 0.15s ease;
+}
+
+.chip:hover {
+    background: #FFE680;
+    border-color: #FFD94D;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #E8DFD3;
+    border-radius: 2px;
 }

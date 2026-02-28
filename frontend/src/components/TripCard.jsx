@@ -1,8 +1,5 @@
 /**
- * TripCard.jsx — Large, mobile-friendly card for a saved trip.
- *
- * Shows trip name (20px+), stop count, last used date,
- * and a "Navigate Now" button with 48px touch target.
+ * TripCard.jsx — School-bus-themed trip card with warm styling.
  */
 import { useNavigate } from 'react-router-dom';
 import useTripStore from '../store/tripStore';
@@ -20,48 +17,46 @@ export default function TripCard({ trip }) {
         })
         : 'Never';
 
-    const handleNavigate = async () => {
+    const handleNavigate = async (e) => {
+        e.stopPropagation();
         if (!trip.stops || trip.stops.length < 2) {
             navigate(`/trips/${trip.id}`);
             return;
         }
-
-        // Launch trip (update stats + history)
         await launchCurrentTrip(trip.id);
-
-        // Open Google Maps
         const url = buildGoogleMapsUrl(trip.stops);
         if (url) window.open(url, '_blank');
     };
 
-    const handleCardTap = () => {
-        navigate(`/trips/${trip.id}`);
-    };
-
     return (
         <div
-            className="bg-card rounded-2xl shadow-md border border-gray-100 p-5 flex flex-col gap-3 active:scale-[0.98] transition-transform cursor-pointer"
-            onClick={handleCardTap}
+            className="bg-card rounded-2xl shadow-card border border-chalk-200 p-5 flex flex-col gap-3 card-hover cursor-pointer"
+            onClick={() => navigate(`/trips/${trip.id}`)}
             role="button"
             tabIndex={0}
         >
-            {/* Trip name */}
-            <h3 className="text-xl font-semibold text-body truncate">{trip.name}</h3>
+            {/* Yellow accent strip at top */}
+            <div className="h-1 -mt-5 -mx-5 rounded-t-2xl bus-stripe" />
 
-            {/* Meta info */}
-            <div className="flex items-center gap-3 text-secondary text-sm">
-                <span>📍 {stopCount} stop{stopCount !== 1 ? 's' : ''}</span>
-                <span>•</span>
-                <span>Last used: {lastUsed}</span>
+            {/* Trip name */}
+            <h3 className="text-xl font-bold text-body truncate mt-2">
+                {trip.name}
+            </h3>
+
+            {/* Meta */}
+            <div className="flex items-center gap-3 text-chalk-500 text-sm">
+                <span className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-bus-400 inline-block" />
+                    {stopCount} stop{stopCount !== 1 ? 's' : ''}
+                </span>
+                <span className="text-chalk-300">•</span>
+                <span>{lastUsed}</span>
             </div>
 
             {/* Navigate button */}
             <button
-                onClick={(e) => {
-                    e.stopPropagation();
-                    handleNavigate();
-                }}
-                className="mt-1 w-full min-h-touch bg-primary hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-xl text-lg transition-colors flex items-center justify-center gap-2"
+                onClick={handleNavigate}
+                className="mt-1 w-full min-h-touch btn-primary rounded-xl text-lg flex items-center justify-center gap-2"
             >
                 🧭 Navigate Now
             </button>

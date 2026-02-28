@@ -1,44 +1,42 @@
 /**
- * StopItem.jsx — Single stop row in a stop list.
- *
- * Shows position number, resolved address, optional note,
- * and a delete button. Designed for use inside StopList
- * with drag-to-reorder support (react-beautiful-dnd provides wrapper).
+ * StopItem.jsx — Individual stop in the reorderable list.
  */
 export default function StopItem({ stop, index, onDelete, dragHandleProps }) {
     return (
-        <div className="flex items-center gap-3 bg-card rounded-xl px-4 py-3 border border-gray-100 shadow-sm">
-            {/* Drag handle + position number */}
+        <div className="flex items-center gap-3 bg-card border border-chalk-200 rounded-2xl p-3 shadow-card">
+            {/* Drag handle */}
             <div
-                {...(dragHandleProps || {})}
-                className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white font-bold text-sm shrink-0 cursor-grab active:cursor-grabbing"
+                {...dragHandleProps}
+                className="flex items-center justify-center w-8 h-8 rounded-lg bg-chalk-100 text-chalk-400 cursor-grab active:cursor-grabbing shrink-0"
             >
+                ⠿
+            </div>
+
+            {/* Stop number badge */}
+            <div className="w-8 h-8 rounded-full bg-bus-500 text-bus-900 flex items-center justify-center text-sm font-bold shrink-0">
                 {index + 1}
             </div>
 
             {/* Stop info */}
             <div className="flex-1 min-w-0">
-                <p className="text-base font-medium text-body truncate">
-                    {stop.label || stop.resolved}
+                <p className="text-base font-semibold text-body truncate">
+                    {stop.label}
                 </p>
                 {stop.resolved && stop.resolved !== stop.label && (
-                    <p className="text-sm text-secondary truncate">{stop.resolved}</p>
-                )}
-                {stop.note && (
-                    <p className="text-xs text-secondary italic mt-0.5">📝 {stop.note}</p>
+                    <p className="text-xs text-chalk-400 truncate">
+                        {stop.resolved}
+                    </p>
                 )}
             </div>
 
             {/* Delete button */}
-            {onDelete && (
-                <button
-                    onClick={() => onDelete(index)}
-                    className="min-w-touch min-h-touch flex items-center justify-center text-danger hover:bg-red-50 rounded-xl transition-colors shrink-0"
-                    aria-label={`Remove stop ${index + 1}`}
-                >
-                    <span className="text-xl">✕</span>
-                </button>
-            )}
+            <button
+                onClick={() => onDelete(index)}
+                className="w-8 h-8 rounded-full bg-red-50 hover:bg-red-100 text-danger flex items-center justify-center text-sm shrink-0 transition-colors"
+                aria-label={`Delete stop ${index + 1}`}
+            >
+                ✕
+            </button>
         </div>
     );
 }

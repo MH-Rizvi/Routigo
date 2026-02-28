@@ -1,9 +1,5 @@
 /**
- * ChatScreen.jsx — Agent chat interface.
- *
- * MessageBubble components (user right/blue, agent left/grey),
- * ChatInput at bottom, example prompt chips on empty chat,
- * "Preview Route →" button when agent returns stops.
+ * ChatScreen.jsx — School-bus-themed agent chat interface.
  */
 import { useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -12,40 +8,29 @@ import MessageBubble from '../components/MessageBubble';
 import ChatInput from '../components/ChatInput';
 
 const EXAMPLE_PROMPTS = [
-    '🚌 Morning school run',
-    '🗺️ My usual Monday route',
-    '📋 What did I drive last week?',
-    '📍 From depot to Oak Avenue',
+    { emoji: '🚌', text: 'Morning school run' },
+    { emoji: '🔄', text: 'My usual Monday route' },
+    { emoji: '📋', text: 'What did I drive last week?' },
+    { emoji: '📍', text: 'From depot to Oak Avenue' },
 ];
 
 export default function ChatScreen() {
     const navigate = useNavigate();
     const {
-        messages,
-        pendingStops,
-        needsConfirmation,
-        loading,
-        error,
-        sendMessage,
-        clearError,
-        clearPendingStops,
-        resetChat,
+        messages, pendingStops, loading, error,
+        sendMessage, clearError, clearPendingStops, resetChat,
     } = useChatStore();
 
     const scrollRef = useRef(null);
 
-    // Auto-scroll to bottom on new messages
     useEffect(() => {
         scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, loading]);
 
-    const handleSend = (text) => {
-        sendMessage(text);
-    };
+    const handleSend = (text) => sendMessage(text);
 
     const handlePreviewRoute = () => {
         if (!pendingStops) return;
-        // Navigate to preview with stops data in router state
         navigate('/preview', { state: { stops: pendingStops } });
         clearPendingStops();
     };
@@ -53,12 +38,15 @@ export default function ChatScreen() {
     return (
         <div className="flex flex-col h-full">
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-card">
-                <h1 className="text-lg font-semibold text-body">Chat with RouteEasy</h1>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-chalk-200 glass-bar">
+                <div className="flex items-center gap-2">
+                    <span className="text-xl">🚌</span>
+                    <h1 className="text-lg font-bold text-body">Chat with RouteEasy</h1>
+                </div>
                 {messages.length > 0 && (
                     <button
                         onClick={resetChat}
-                        className="min-h-touch px-3 text-sm text-primary hover:underline"
+                        className="min-h-touch px-3 text-sm text-bus-700 font-medium hover:text-bus-900 transition-colors"
                     >
                         New Chat
                     </button>
@@ -67,24 +55,26 @@ export default function ChatScreen() {
 
             {/* Messages area */}
             <div className="flex-1 overflow-y-auto px-4 py-4">
-                {/* Empty state: example prompt chips */}
+                {/* Empty state */}
                 {messages.length === 0 && !loading && (
-                    <div className="flex flex-col items-center justify-center h-full text-center">
-                        <span className="text-5xl mb-4">💬</span>
-                        <h2 className="text-xl font-semibold text-body mb-2">
-                            Tell me where you need to go
+                    <div className="flex flex-col items-center justify-center h-full text-center animate-fade-in">
+                        <div className="w-20 h-20 rounded-full bg-bus-100 flex items-center justify-center mb-4">
+                            <span className="text-4xl">💬</span>
+                        </div>
+                        <h2 className="text-xl font-bold text-body mb-2">
+                            Where are you heading today?
                         </h2>
-                        <p className="text-secondary mb-6 max-w-xs">
-                            Describe your route in plain language and I'll plan it for you
+                        <p className="text-chalk-500 mb-6 max-w-xs">
+                            Describe your route in plain language — I'll plan it for you
                         </p>
                         <div className="flex flex-wrap gap-2 justify-center max-w-sm">
-                            {EXAMPLE_PROMPTS.map((prompt) => (
+                            {EXAMPLE_PROMPTS.map((p) => (
                                 <button
-                                    key={prompt}
-                                    onClick={() => handleSend(prompt.replace(/^[^\s]+\s/, ''))}
-                                    className="min-h-touch px-4 py-2 rounded-full bg-blue-50 text-primary text-sm font-medium hover:bg-blue-100 transition-colors"
+                                    key={p.text}
+                                    onClick={() => handleSend(p.text)}
+                                    className="chip min-h-touch px-4 py-2 rounded-full text-sm font-medium"
                                 >
-                                    {prompt}
+                                    {p.emoji} {p.text}
                                 </button>
                             ))}
                         </div>
@@ -101,34 +91,39 @@ export default function ChatScreen() {
                     />
                 ))}
 
-                {/* Loading indicator */}
+                {/* Typing indicator */}
                 {loading && (
-                    <div className="flex justify-start mb-3">
-                        <div className="bg-gray-100 rounded-2xl rounded-bl-md px-4 py-3">
-                            <span className="text-base animate-pulse">Thinking…</span>
+                    <div className="flex justify-start mb-3 animate-fade-in">
+                        <div className="w-8 h-8 rounded-full bg-bus-100 flex items-center justify-center mr-2 mt-1">
+                            <span className="text-sm">🚌</span>
+                        </div>
+                        <div className="bg-chalk-100 border border-chalk-200 rounded-2xl rounded-bl-md px-5 py-4">
+                            <div className="typing-dots">
+                                <span /><span /><span />
+                            </div>
                         </div>
                     </div>
                 )}
 
                 {/* Error */}
                 {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-xl p-3 mb-3">
+                    <div className="bg-red-50 border border-red-200 rounded-2xl p-3 mb-3 animate-fade-in">
                         <p className="text-danger text-sm">⚠️ {error}</p>
                         <button
                             onClick={clearError}
-                            className="text-xs text-primary mt-1 underline min-h-touch"
+                            className="text-xs text-bus-700 mt-1 underline min-h-touch"
                         >
                             Dismiss
                         </button>
                     </div>
                 )}
 
-                {/* Preview Route button when agent returns stops */}
+                {/* Preview Route button */}
                 {pendingStops && pendingStops.length > 0 && (
-                    <div className="mb-3">
+                    <div className="mb-3 animate-bounce-in">
                         <button
                             onClick={handlePreviewRoute}
-                            className="w-full min-h-touch rounded-xl bg-success hover:bg-green-700 text-white font-semibold text-lg flex items-center justify-center gap-2 transition-colors"
+                            className="w-full min-h-touch rounded-2xl bg-green-500 hover:bg-green-600 text-white font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-card"
                         >
                             🗺️ Preview Route →
                         </button>
@@ -138,7 +133,7 @@ export default function ChatScreen() {
                 <div ref={scrollRef} />
             </div>
 
-            {/* Input at bottom */}
+            {/* Input */}
             <ChatInput onSend={handleSend} loading={loading} />
         </div>
     );
