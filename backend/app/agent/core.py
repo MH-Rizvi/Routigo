@@ -48,20 +48,26 @@ _agent_executor = AgentExecutor(
     agent=_agent,
     tools=_tools,
     verbose=True,
-    max_iterations=8,
+    max_iterations=15,
     handle_parsing_errors=True,
     callbacks=[LLMOpsCallbackHandler()],
+    return_intermediate_steps=True,
 )
 
 
-def _format_history(raw_history: List[Dict[str, Any]]) -> str:
+def _format_history(raw_history: List[Any]) -> str:
     """
-    Format raw conversation history (list of {role, content}) into a readable string.
+    Format raw conversation history into a readable string.
+    Handles both plain dicts and Pydantic model objects.
     """
     lines: List[str] = []
     for msg in raw_history:
-        role = msg.get("role")
-        content = msg.get("content", "")
+        if isinstance(msg, dict):
+            role = msg.get("role")
+            content = msg.get("content", "")
+        else:
+            role = getattr(msg, "role", None)
+            content = getattr(msg, "content", "")
         if role == "user":
             prefix = "Driver"
         elif role == "assistant":
@@ -70,6 +76,27 @@ def _format_history(raw_history: List[Dict[str, Any]]) -> str:
             prefix = "Other"
         lines.append(f"{prefix}: {content}")
     return "\n".join(lines)
+
+
+def _extract_stops_from_steps(intermediate_steps: list) -> List[Dict[str, Any]]:
+    """
+    Extract geocoded stops from the agent's intermediate tool calls.
+    """
+    stops: List[Dict[str, Any]] = []
+    position = 0
+    for action, observation in intermediate_steps:
+        if action.tool == "geocode_stop" and isinstance(observation, dict):
+            if observation.get("success"):
+                stops.append({
+                    "label": action.tool_input if isinstance(action.tool_input, str) else str(action.tool_input),
+                    "resolved": observation.get("formatted_address", ""),
+                    "lat": observation.get("lat"),
+                    "lng": observation.get("lng"),
+                    "note": None,
+                    "position": position,
+                })
+                position += 1
+    return stops
 
 
 async def run_agent(
@@ -86,7 +113,7 @@ async def run_agent(
     - db: SQLAlchemy Session (currently unused by tools; reserved for future use).
 
     Returns:
-    - dict with at least {"reply": str}. Additional structured fields can be added later.
+    - dict with {reply, stops?, trip_id?, needs_confirmation?}
     """
     chat_history_str = _format_history(conversation_history or [])
 
@@ -97,11 +124,15 @@ async def run_agent(
         }
     )
 
-    # AgentExecutor returns a dict with "output" key by default.
     reply = result.get("output", "")
+    intermediate = result.get("intermediate_steps", [])
 
-    return {
-        "reply": reply,
-    }
+    # Extract structured stops from geocode tool calls
+    stops = _extract_stops_from_steps(intermediate)
 
+    response: Dict[str, Any] = {"reply": reply}
+    if stops:
+        response["stops"] = stops
+        response["needs_confirmation"] = True
 
+    return response

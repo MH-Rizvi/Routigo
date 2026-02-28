@@ -17,6 +17,22 @@ from app.services import trips_service
 logger = logging.getLogger(__name__)
 
 
+def _run_async(coro):
+    """Bridge async to sync safely (works in worker threads without an event loop)."""
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = None
+
+    if loop and loop.is_running():
+        # We're inside an existing event loop — create a new one in a thread
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+            return pool.submit(asyncio.run, coro).result()
+    else:
+        return asyncio.run(coro)
+
+
 @tool("geocode_stop")
 def geocode_stop_tool(query: str) -> Dict[str, Any]:
     """
@@ -25,13 +41,7 @@ def geocode_stop_tool(query: str) -> Dict[str, Any]:
     Input: free-text description of a stop.
     Output: { success, lat, lng, formatted_address, error }.
     """
-    # geocoding_service.geocode is async; bridge it into this sync tool
-    # using the existing event loop if present.
-    async def _run() -> Dict[str, Any]:
-        return await geocoding_service.geocode(query)
-
-    loop = asyncio.get_event_loop()
-    return loop.run_until_complete(_run())
+    return _run_async(geocoding_service.geocode(query))
 
 
 @tool("search_saved_stops")
@@ -69,14 +79,12 @@ def get_trip_by_id_tool(trip_id_str: str) -> Dict[str, Any]:
     except ValueError:
         return {"error": "trip_id must be an integer string."}
 
-    async def _run() -> Dict[str, Any]:
+    async def _fetch():
         db = SessionLocal()
         try:
             trip = await trips_service.get_trip(db, trip_id)
             if not trip:
                 return {"error": f"Trip with id {trip_id} not found."}
-
-            # Serialize trip and stops to simple dicts
             stops = [
                 {
                     "id": stop.id,
@@ -89,17 +97,11 @@ def get_trip_by_id_tool(trip_id_str: str) -> Dict[str, Any]:
                 }
                 for stop in trip.stops
             ]
-            return {
-                "id": trip.id,
-                "name": trip.name,
-                "notes": trip.notes,
-                "stops": stops,
-            }
+            return {"id": trip.id, "name": trip.name, "notes": trip.notes, "stops": stops}
         finally:
             db.close()
 
-    loop = asyncio.get_event_loop()
-    return loop.run_until_complete(_run())
+    return _run_async(_fetch())
 
 
 @tool("get_recent_history")

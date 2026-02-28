@@ -1,6 +1,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status  # pyright: ignore[reportMissingImports]
@@ -12,6 +13,7 @@ from app.database import get_db
 from app.services import moderation_service
 
 
+logger = logging.getLogger(__name__)
 router = APIRouter(tags=["agent"])
 
 
@@ -27,11 +29,21 @@ async def chat(
             detail="Message not related to route planning.",
         )
 
-    result: dict[str, Any] = await agent_service.run_agent(
-        request.message,
-        request.conversation_history,  # pyright: ignore[reportArgumentType]
-        db,
-    )
-    return schemas.AgentChatResponse(**result)
-
-
+    try:
+        result: dict[str, Any] = await agent_service.run_agent(
+            request.message,
+            request.conversation_history,  # pyright: ignore[reportArgumentType]
+            db,
+        )
+        return schemas.AgentChatResponse(**result)
+    except Exception as exc:
+        # Log the full error but return a friendly message
+        logger.exception("Agent error: %s", exc)
+        error_msg = str(exc)
+        if "rate_limit" in error_msg.lower():
+            reply = "The AI service is temporarily busy (rate limit reached). Please wait 30 seconds and try again."
+        elif "iteration limit" in error_msg.lower() or "time limit" in error_msg.lower():
+            reply = "The route took too long to process. Please try a simpler description."
+        else:
+            reply = "Something went wrong while processing your route. Please try again."
+        return schemas.AgentChatResponse(reply=reply)

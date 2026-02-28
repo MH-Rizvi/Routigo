@@ -150,7 +150,7 @@ class AgentChatRequest(BaseModel):
 
 class AgentChatResponse(BaseModel):
     reply: str
-    stops: List[Stop] = []
+    stops: List[StopBase] = []
     trip_found: bool = False
     trip_id: Optional[int] = None
     needs_confirmation: bool = False
