@@ -7,6 +7,8 @@ from typing import Any, Dict, List
 from langchain.agents import AgentExecutor, create_react_agent  # pyright: ignore[reportMissingImports]
 from langchain.prompts import PromptTemplate  # pyright: ignore[reportMissingImports]
 
+from app.agent.output_parser import RouteEasyOutputParser
+
 from app.agent.callbacks import LLMOpsCallbackHandler
 from app.agent.prompts import SYSTEM_PROMPT_v1
 from app.agent.tools import (
@@ -39,12 +41,12 @@ _prompt = PromptTemplate(
 def _build_executor() -> AgentExecutor:
     """Build a fresh AgentExecutor using the current rotator key."""
     llm = groq_rotator.get_chat_groq(model="llama-3.3-70b-versatile", temperature=0)
-    agent = create_react_agent(llm, _tools, _prompt)
+    agent = create_react_agent(llm, _tools, _prompt, output_parser=RouteEasyOutputParser())
     return AgentExecutor(
         agent=agent,
         tools=_tools,
         verbose=True,
-        max_iterations=15,
+        max_iterations=10,
         handle_parsing_errors=True,
         callbacks=[LLMOpsCallbackHandler()],
         return_intermediate_steps=True,
