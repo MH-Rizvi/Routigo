@@ -20,17 +20,19 @@ const useChatStore = create((set, get) => ({
     conversationHistory: [],     // LangChain format: [{ role, content }]
     pendingStops: null,          // Stops returned by agent awaiting driver confirmation
     pendingTripId: null,         // Trip ID if agent found an existing trip
+    lastRoute: null,             // { messageId, stops } - Persists for the Preview Route button
     needsConfirmation: false,    // Whether agent is waiting for "yes / no"
     loading: false,
     error: null,
 
     // ── Helpers ────────────────────────────────
-    _addMessage: (role, content) => {
+    _addMessage: (role, content, routeStops = null) => {
         const msg = {
             id: Date.now().toString(36) + Math.random().toString(36).slice(2),
             role,
             content,
             timestamp: new Date().toISOString(),
+            routeStops,
         };
         set((state) => ({
             messages: [...state.messages, msg],
@@ -62,14 +64,35 @@ const useChatStore = create((set, get) => ({
         try {
             const response = await sendAgentMessage(text, conversationHistory, SESSION_ID);
 
-            _addMessage('assistant', response.reply);
+            let finalReply = response.reply;
+            if (finalReply && finalReply.includes("Agent stopped due to iteration limit")) {
+                if (response.stops && response.stops.length > 0) {
+                    finalReply = "Here are your stops! Tap Preview Route to check them.";
+                } else {
+                    finalReply = "I had trouble planning that route, please try again.";
+                }
+            }
+
+            // Parse message text for numbered stop lists (e.g. "1. ", "2. ", "3. ")
+            const numberedLines = (finalReply.match(/(?:^\s*\d+\.)|(?:^\d+\.)/gm) || []).length;
+            const hasNumberedList = numberedLines >= 3;
+
+            let messageStops = null;
+            if (response.stops && response.stops.length > 0) {
+                messageStops = response.stops; // Prefer fresh backend stops
+            } else if (hasNumberedList) {
+                messageStops = get().lastRoute?.stops || null; // Fallback to last known route
+            }
+
+            const asstMsg = _addMessage('assistant', finalReply, messageStops);
 
             // Track stops for confirmation flow
             set({
                 loading: false,
-                pendingStops: response.stops || null,
+                pendingStops: messageStops,
                 pendingTripId: response.trip_id || null,
                 needsConfirmation: response.needs_confirmation || false,
+                lastRoute: messageStops?.length > 0 ? { messageId: asstMsg.id, stops: messageStops } : get().lastRoute,
             });
         } catch (err) {
             set({
@@ -120,6 +143,7 @@ const useChatStore = create((set, get) => ({
             conversationHistory: [],
             pendingStops: null,
             pendingTripId: null,
+            lastRoute: null,
             needsConfirmation: false,
             loading: false,
             error: null,

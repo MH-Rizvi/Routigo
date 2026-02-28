@@ -1,7 +1,9 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
+import re
 from typing import Any, Dict, List
 
 from langchain.agents import AgentExecutor, create_react_agent  # pyright: ignore[reportMissingImports]
@@ -37,16 +39,31 @@ _prompt = PromptTemplate(
     input_variables=["input", "chat_history", "agent_scratchpad", "tools", "tool_names"],
 )
 
+GROQ_MODELS = [
+    "llama-3.3-70b-versatile",
+    "moonshotai/kimi-k2-instruct",
+    "meta-llama/llama-4-maverick-17b-128e-instruct",
+    "meta-llama/llama-4-scout-17b-16e-instruct",
+    "qwen/qwen3-32b",
+    "groq/compound"
+]
+_current_model_idx = 0
+
 
 def _build_executor() -> AgentExecutor:
     """Build a fresh AgentExecutor using the current rotator key."""
-    llm = groq_rotator.get_chat_groq(model="llama-3.3-70b-versatile", temperature=0)
+    if groq_rotator.current_provider == "groq":
+        model_name = GROQ_MODELS[_current_model_idx]
+    else:
+        model_name = "gemini-2.0-flash-lite"
+
+    llm = groq_rotator.get_chat_groq(model=model_name, temperature=0)
     agent = create_react_agent(llm, _tools, _prompt, output_parser=RouteEasyOutputParser())
     return AgentExecutor(
         agent=agent,
         tools=_tools,
         verbose=True,
-        max_iterations=10,
+        max_iterations=8,
         handle_parsing_errors=True,
         callbacks=[LLMOpsCallbackHandler()],
         return_intermediate_steps=True,
@@ -101,6 +118,46 @@ def _extract_stops_from_steps(intermediate_steps: list) -> List[Dict[str, Any]]:
     return stops
 
 
+# Regex: matches lines like "1. Label (40.123, -73.456) - Address text"
+_STOP_RE = re.compile(
+    r'^\s*\d+\.\s+'               # "1. "
+    r'(.+?)\s*'                    # label (non-greedy)
+    r'\((-?\d+\.?\d*),\s*'         # (lat,
+    r'(-?\d+\.?\d*)\)\s*'          # lng)
+    r'(?:-\s*(.+))?$',             # optional "- address"
+    re.MULTILINE,
+)
+
+
+def _extract_stops_from_reply(reply: str) -> List[Dict[str, Any]]:
+    """
+    Fallback: parse stops from the agent's text reply.
+    Looks for numbered lines containing (lat, lng) coordinates.
+    Returns an empty list if the reply doesn't contain route data.
+    """
+    matches = _STOP_RE.findall(reply)
+    if len(matches) < 2:          # Need at least 2 stops for a route
+        return []
+
+    stops: List[Dict[str, Any]] = []
+    for i, (label, lat_str, lng_str, address) in enumerate(matches):
+        stops.append({
+            "label": label.strip(),
+            "resolved": address.strip() if address else label.strip(),
+            "lat": float(lat_str),
+            "lng": float(lng_str),
+            "note": None,
+            "position": i,
+        })
+    return stops
+
+
+def _hide_coordinates_from_reply(reply: str) -> str:
+    """Removes coordinate pairs like (40.7668, -73.5272) from the reply text."""
+    # Matches (lat, lng) including the parentheses and surrounding whitespace
+    return re.sub(r'\s*\(-?\d+\.?\d*,\s*-?\d+\.?\d*\)\s*', ' ', reply).strip()
+
+
 async def run_agent(
     message: str,
     conversation_history: List[Dict[str, Any]] | None = None,
@@ -110,27 +167,43 @@ async def run_agent(
     Run the LangChain ReAct agent for a single driver message.
     Automatically retries with a rotated Groq key on rate-limit errors.
     """
-    global _agent_executor
+    global _agent_executor, _current_model_idx
 
-    chat_history_str = _format_history(conversation_history or [])
+    # Send only the last 4 messages to save tokens
+    recent_history = (conversation_history or [])[-4:]
+    chat_history_str = _format_history(recent_history)
     invoke_input = {
         "input": message,
         "chat_history": chat_history_str,
     }
 
-    tried = 0
     last_exc: Exception | None = None
+    groq_keys_tried = 1
+    groq_models_tried = 1
+    groq_model_retries = 0
+    gemini_keys_tried = 1
+    gemini_key_retries = 0
 
-    while tried < groq_rotator.key_count:
+    while True:
         try:
             result = await _agent_executor.ainvoke(invoke_input)
             reply = result.get("output", "")
             intermediate = result.get("intermediate_steps", [])
 
-            # Extract structured stops from geocode tool calls
-            stops = _extract_stops_from_steps(intermediate)
+            # Primary: extract stops from geocode tool calls this turn
+            stops_tools = _extract_stops_from_steps(intermediate)
 
-            response: Dict[str, Any] = {"reply": reply}
+            # Fallback: parse stops from the reply text (coordinates in Final Answer)
+            stops_reply = _extract_stops_from_reply(reply)
+
+            # Prefer whichever list has more stops, as agent replies often contain the entire 
+            # updated route whereas intermediate tools only reflect newly added stops this turn.
+            stops = stops_reply if len(stops_reply) >= len(stops_tools) else stops_tools
+
+            # Strip coordinates from the reply text so the user doesn't see them
+            clean_reply = _hide_coordinates_from_reply(reply)
+
+            response: Dict[str, Any] = {"reply": clean_reply}
             if stops:
                 response["stops"] = stops
                 response["needs_confirmation"] = True
@@ -139,24 +212,87 @@ async def run_agent(
 
         except Exception as exc:
             last_exc = exc
-            if _is_rate_limit_error(exc):
-                tried += 1
-                logger.warning(
-                    "Agent hit rate limit (attempt %d/%d): %s",
-                    tried, groq_rotator.key_count, str(exc)[:120],
-                )
-                if tried < groq_rotator.key_count:
-                    # Rotate key and rebuild executor
-                    groq_rotator.refresh_chat_groq()
-                    _agent_executor = _build_executor()
-                    logger.info("Rebuilt agent executor with new key")
-                    continue
-                break
-            else:
-                raise
+            exc_str = str(exc).lower()
 
-    # All keys exhausted
-    raise RuntimeError(
-        "All Groq API keys have been rate-limited. "
-        "I'm taking a short break — please try again in a few minutes."
-    ) from last_exc
+            # Hard fail across all providers if daily quota is definitively exhausted
+            if "generaterequestsperday" in exc_str or "daily" in exc_str:
+                logger.error("Daily quota exhausted. Stopping all retries immediately.")
+                break
+
+            if not _is_rate_limit_error(exc):
+                raise
+                
+            provider = groq_rotator.current_provider
+            
+            if provider == "groq":
+                if groq_model_retries < 2:
+                    groq_model_retries += 1
+                    logger.warning("Agent Groq rate limit on model %s, retry %d/2: %s", GROQ_MODELS[_current_model_idx], groq_model_retries, str(exc)[:80])
+                    continue
+                else:
+                    # Model exhausted, move to next model on same key
+                    if groq_models_tried < len(GROQ_MODELS):
+                        groq_models_tried += 1
+                        _current_model_idx = (_current_model_idx + 1) % len(GROQ_MODELS)
+                        logger.warning("Agent Groq model exhausted, rotating to next model: %s (%d/%d)", GROQ_MODELS[_current_model_idx], groq_models_tried, len(GROQ_MODELS))
+                        _agent_executor = _build_executor()
+                        groq_model_retries = 0
+                        continue
+                    else:
+                        num_groq_keys = sum(1 for p, k in groq_rotator._keys if p == "groq")
+                        if groq_keys_tried < num_groq_keys:
+                            groq_keys_tried += 1
+                            logger.warning("Agent Groq key exhausted across all models, rotating to next Groq key (%d/%d)", groq_keys_tried, num_groq_keys)
+                            groq_rotator.refresh_chat_groq()
+                            
+                            # Start with the first model for the new key
+                            _current_model_idx = 0
+                            groq_models_tried = 1
+                            groq_model_retries = 0
+                            _agent_executor = _build_executor()
+                            continue
+                        else:
+                            logger.warning("All Agent Groq keys and models completely exhausted, forcing Gemini fallback")
+                            rotated = False
+                            for _ in range(groq_rotator.key_count):
+                                groq_rotator.refresh_chat_groq()
+                                if groq_rotator.current_provider == "gemini":
+                                    rotated = True
+                                    break
+                            if not rotated:
+                                break
+                            
+                            _agent_executor = _build_executor()
+                            continue
+            else:
+                num_gemini_keys = sum(1 for p, k in groq_rotator._keys if p == "gemini")
+
+                should_fail_fast = "quota" in exc_str or "429" in exc_str or "resourceexhausted" in exc_str
+                
+                if not should_fail_fast and gemini_key_retries < 1:
+                    gemini_key_retries += 1
+                    logger.warning("Agent Gemini rate limit, retry %d/1. Waiting 30s...", gemini_key_retries)
+                    await asyncio.sleep(30)
+                    continue
+                else:
+                    if should_fail_fast:
+                        logger.warning("Agent Gemini quota exhausted, failing fast to next key.")
+                    else:
+                        logger.warning("Agent Gemini retries exhausted for this key.")
+                        
+                    if gemini_keys_tried < num_gemini_keys:
+                        gemini_keys_tried += 1
+                        logger.warning("Rotating to next Gemini key (%d/%d)", gemini_keys_tried, num_gemini_keys)
+                        groq_rotator.refresh_chat_groq()
+                        _agent_executor = _build_executor()
+                        gemini_key_retries = 0
+                        continue
+                    else:
+                        logger.warning("All Gemini keys exhausted.")
+                        break
+
+    logger.error("All LLM keys rate-limited. Giving up. Last exc: %s", last_exc)
+    return {
+        "reply": "I'm a bit busy right now, please try again in a moment",
+        "stops": []
+    }

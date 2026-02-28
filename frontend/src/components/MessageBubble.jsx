@@ -2,7 +2,7 @@
  * MessageBubble.jsx — Dark enterprise chat bubbles.
  * User: elevated surface with amber border. AI: surface with amber left border.
  */
-export default function MessageBubble({ role, content, timestamp }) {
+export default function MessageBubble({ role, content, timestamp, routeStops, onPreviewRoute }) {
     const isUser = role === 'user';
 
     return (
@@ -15,8 +15,8 @@ export default function MessageBubble({ role, content, timestamp }) {
             )}
 
             <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${isUser
-                    ? 'bg-elevated border border-accent/30 rounded-br-md'
-                    : 'bg-surface border-l-2 border-l-accent border border-border rounded-bl-md'
+                ? 'bg-elevated border border-accent/30 rounded-br-md'
+                : 'bg-surface border-l-2 border-l-accent border border-border rounded-bl-md'
                 }`}>
                 <p className="text-base text-text-primary whitespace-pre-wrap break-words leading-relaxed">
                     {content}
@@ -25,6 +25,15 @@ export default function MessageBubble({ role, content, timestamp }) {
                     <p className={`text-[11px] mt-1.5 font-mono ${isUser ? 'text-text-muted' : 'text-text-muted'}`}>
                         {new Date(timestamp).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
                     </p>
+                )}
+                {routeStops && routeStops.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-border/50">
+                        <button
+                            onClick={onPreviewRoute}
+                            className="w-full min-h-touch rounded-xl bg-amber-600/20 hover:bg-amber-600/30 text-amber-500 font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm py-2.5 border border-amber-500/30">
+                            🗺️ Preview Route
+                        </button>
+                    </div>
                 )}
             </div>
         </div>

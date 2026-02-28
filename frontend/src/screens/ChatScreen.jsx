@@ -16,14 +16,14 @@ const PROMPTS = [
 
 export default function ChatScreen() {
     const navigate = useNavigate();
-    const { messages, pendingStops, loading, error, sendMessage, clearError, clearPendingStops, resetChat } = useChatStore();
+    const { messages, lastRoute, loading, error, sendMessage, clearError, clearPendingStops, resetChat } = useChatStore();
     const scrollRef = useRef(null);
 
     useEffect(() => { scrollRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, loading]);
 
-    const handlePreviewRoute = () => {
-        if (!pendingStops) return;
-        navigate('/preview', { state: { stops: pendingStops } });
+    const handlePreviewRoute = (stops) => {
+        if (!stops) return;
+        navigate('/preview', { state: { stops } });
         clearPendingStops();
     };
 
@@ -64,7 +64,14 @@ export default function ChatScreen() {
                 )}
 
                 {messages.map((msg) => (
-                    <MessageBubble key={msg.id} role={msg.role} content={msg.content} timestamp={msg.timestamp} />
+                    <MessageBubble
+                        key={msg.id}
+                        role={msg.role}
+                        content={msg.content}
+                        timestamp={msg.timestamp}
+                        routeStops={msg.routeStops}
+                        onPreviewRoute={() => handlePreviewRoute(msg.routeStops)}
+                    />
                 ))}
 
                 {loading && (
@@ -82,14 +89,6 @@ export default function ChatScreen() {
                     <div className="card p-3 mb-3 border-danger/30 animate-fade-up">
                         <p className="text-danger text-sm">⚠ {error}</p>
                         <button onClick={clearError} className="text-xs text-accent mt-1 underline min-h-touch">Dismiss</button>
-                    </div>
-                )}
-
-                {pendingStops?.length > 0 && (
-                    <div className="mb-3 animate-fade-up">
-                        <button onClick={handlePreviewRoute} className="w-full min-h-touch rounded-xl bg-success hover:bg-emerald-600 text-white font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-card">
-                            Preview Route →
-                        </button>
                     </div>
                 )}
 

@@ -16,10 +16,8 @@ logger = logging.getLogger(__name__)
 
 
 RAG_SYSTEM_PROMPT_v1 = """
-You are a helpful assistant answering questions about a bus driver's trip history.
-You will be given retrieved trip history records as context.
-Answer ONLY based on what is in the context. If the context doesn't contain the answer, say so clearly.
-Be brief and direct — the driver is busy.
+You answer driver trip history questions based ONLY on the context provided.
+If the answer is missing, say so. Be extremely brief, max 1 sentence.
 """.strip()
 
 
@@ -39,7 +37,7 @@ async def answer_history_question(question: str) -> Dict[str, Any]:
     # Step 2: Retrieve top-k relevant history entries from ChromaDB
     results = history_collection.query(
         query_embeddings=[question_embedding],
-        n_results=5,
+        n_results=3,
     )
 
     documents = results.get("documents", [[]])[0]
@@ -50,8 +48,8 @@ async def answer_history_question(question: str) -> Dict[str, Any]:
             "sources_used": 0,
         }
 
-    # Step 3: Format retrieved context
-    context_lines = [f"- {doc}" for doc in documents]
+    # Step 3: Format and truncate retrieved context
+    context_lines = [f"- {doc[:200]}" for doc in documents]
     context = "\n".join(context_lines)
 
     # Step 4: Generate grounded answer via Groq (with key rotation)

@@ -9,10 +9,17 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     """Application settings loaded from environment variables (.env)."""
 
-    groq_api_key: str = Field(..., env="GROQ_API_KEY")
-    groq_api_key_1: Optional[str] = Field(default=None, env="GROQ_API_KEY_1")
-    groq_api_key_2: Optional[str] = Field(default=None, env="GROQ_API_KEY_2")
-    groq_api_key_3: Optional[str] = Field(default=None, env="GROQ_API_KEY_3")
+    groq_api_key: Optional[str] = Field(default=None, env="GROQ_API_KEY")
+    groq_api_key_1: str = Field(default="", env="GROQ_API_KEY_1")
+    groq_api_key_2: str = Field(default="", env="GROQ_API_KEY_2")
+    groq_api_key_3: str = Field(default="", env="GROQ_API_KEY_3")
+    groq_api_key_4: str = Field(default="", env="GROQ_API_KEY_4")
+
+    gemini_api_key_1: str = Field(default="", env="GEMINI_API_KEY_1")
+    gemini_api_key_2: str = Field(default="", env="GEMINI_API_KEY_2")
+    gemini_api_key_3: str = Field(default="", env="GEMINI_API_KEY_3")
+    gemini_api_key_4: str = Field(default="", env="GEMINI_API_KEY_4")
+    gemini_api_key_5: str = Field(default="", env="GEMINI_API_KEY_5")
 
     google_maps_api_key: str | None = Field(default=None, env="GOOGLE_MAPS_API_KEY")
 
@@ -47,7 +54,26 @@ class Settings(BaseSettings):
             self.groq_api_key_1,
             self.groq_api_key_2,
             self.groq_api_key_3,
-            self.groq_api_key,  # fallback is always last
+            self.groq_api_key_4,
+            self.groq_api_key,
+        ]
+        seen: set[str] = set()
+        keys: List[str] = []
+        for k in candidates:
+            if k and k.strip() and k.strip() not in seen:
+                seen.add(k.strip())
+                keys.append(k.strip())
+        return keys
+
+    @property
+    def gemini_api_keys(self) -> List[str]:
+        """Return all available Gemini API keys, deduplicated, preserving order."""
+        candidates = [
+            self.gemini_api_key_1,
+            self.gemini_api_key_2,
+            self.gemini_api_key_3,
+            self.gemini_api_key_4,
+            self.gemini_api_key_5,
         ]
         seen: set[str] = set()
         keys: List[str] = []
