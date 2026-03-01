@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useTripStore from '../store/tripStore';
 import MapPreview from '../components/MapPreview';
-import { buildGoogleMapsUrl } from '../utils/mapsLinks';
+import { buildGoogleMapsUrl, buildAppleMapsUrl } from '../utils/mapsLinks';
 
 export default function TripDetailScreen() {
     const { tripId } = useParams();
@@ -15,11 +15,22 @@ export default function TripDetailScreen() {
 
     useEffect(() => { if (tripId) fetchTrip(Number(tripId)); }, [tripId, fetchTrip]);
 
-    const handleNavigate = async () => {
+    const handleGoogleMaps = () => {
         if (!currentTrip?.stops?.length) return;
-        await launchCurrentTrip(currentTrip.id);
+
+        launchCurrentTrip(currentTrip.id).catch(err => console.error("Failed to track launch", err));
+
         const url = buildGoogleMapsUrl(currentTrip.stops);
-        if (url) window.open(url, '_blank');
+        if (url) window.location.href = url;
+    };
+
+    const handleAppleMaps = () => {
+        if (!currentTrip?.stops?.length) return;
+
+        launchCurrentTrip(currentTrip.id).catch(err => console.error("Failed to track launch", err));
+
+        const url = buildAppleMapsUrl(currentTrip.stops);
+        if (url) window.location.href = url;
     };
 
     const handleDelete = async () => {
@@ -110,9 +121,20 @@ export default function TripDetailScreen() {
                 </div>
 
                 <div className="flex flex-col gap-3">
-                    <button onClick={handleNavigate} disabled={stops.length < 2} className="w-full min-h-touch rounded-xl btn-accent text-lg flex items-center justify-center gap-2 disabled:opacity-30">
-                        Navigate Now
-                    </button>
+                    <div className="grid grid-cols-2 gap-3">
+                        <button onClick={handleAppleMaps} disabled={stops.length < 2} className="w-full h-16 rounded-xl bg-surface border border-border-hl text-text-primary text-sm font-semibold flex flex-col items-center justify-center gap-1 hover:bg-border-hl transition-colors disabled:opacity-30">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.05 2.53.81 3.19.81.79 0 2.21-1.01 3.84-.86 1.63.13 3.13.84 4.02 2.11-3.41 1.98-2.88 6.51.35 7.84-.79 1.83-2.09 3.85-3.4 5.07zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.32 2.28-1.9 4.2-3.74 4.25z" />
+                            </svg>
+                            Apple Maps
+                        </button>
+                        <button onClick={handleGoogleMaps} disabled={stops.length < 2} className="w-full h-16 rounded-xl btn-accent text-sm font-semibold text-black flex flex-col items-center justify-center gap-1 disabled:opacity-30">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z" />
+                            </svg>
+                            Google Maps
+                        </button>
+                    </div>
                     <button onClick={() => navigate('/preview', { state: { stops, tripId: currentTrip.id } })} className="w-full min-h-touch rounded-xl btn-surface text-lg flex items-center justify-center gap-2">
                         Edit Route
                     </button>

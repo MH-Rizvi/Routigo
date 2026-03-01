@@ -107,7 +107,18 @@ def _extract_stops_from_steps(intermediate_steps: list) -> List[Dict[str, Any]]:
     stops: List[Dict[str, Any]] = []
     position = 0
     for action, observation in intermediate_steps:
-        if action.tool == "geocode_stop" and isinstance(observation, dict):
+        if action.tool == "get_trip_by_id" and isinstance(observation, dict) and "stops" in observation:
+            for s in observation.get("stops", []):
+                stops.append({
+                    "label": s.get("label"),
+                    "resolved": s.get("resolved"),
+                    "lat": s.get("lat"),
+                    "lng": s.get("lng"),
+                    "note": s.get("note"),
+                    "position": position,
+                })
+                position += 1
+        elif action.tool == "geocode_stop" and isinstance(observation, dict):
             if observation.get("success"):
                 stops.append({
                     "label": action.tool_input if isinstance(action.tool_input, str) else str(action.tool_input),

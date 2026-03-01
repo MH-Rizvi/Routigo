@@ -5,6 +5,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useTripStore from '../store/tripStore';
 import SemanticSearchBar from '../components/SemanticSearchBar';
+import { buildGoogleMapsUrl, buildAppleMapsUrl } from '../utils/mapsLinks';
 
 function TripRow({ trip, onDelete, onTap }) {
     const [offset, setOffset] = useState(0);
@@ -51,12 +52,38 @@ function TripRow({ trip, onDelete, onTap }) {
                             {Math.round(trip.similarity * 100)}%
                         </span>
                     )}
-                    <button
-                        onClick={(e) => { e.stopPropagation(); /* launch logic handled by detail view conceptually, but here's the UI */ }}
-                        className="bg-[#F59E0B]/10 text-[#F59E0B] text-[12px] font-bold px-3 py-1.5 rounded-full border border-[#F59E0B]/30 flex items-center gap-1 active:bg-[#F59E0B]/20"
-                    >
-                        ▶ Launch
-                    </button>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (!trip.stops || trip.stops.length < 2) return;
+                                useTripStore.getState().launchCurrentTrip(trip.id).catch(err => console.error(err));
+                                const url = buildAppleMapsUrl(trip.stops);
+                                if (url) window.location.href = url;
+                            }}
+                            title="Open in Apple Maps"
+                            className="w-8 h-8 rounded-full bg-surface border border-border-hl flex items-center justify-center text-text-primary hover:bg-border-hl transition-colors"
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.05 2.53.81 3.19.81.79 0 2.21-1.01 3.84-.86 1.63.13 3.13.84 4.02 2.11-3.41 1.98-2.88 6.51.35 7.84-.79 1.83-2.09 3.85-3.4 5.07zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.32 2.28-1.9 4.2-3.74 4.25z" />
+                            </svg>
+                        </button>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (!trip.stops || trip.stops.length < 2) return;
+                                useTripStore.getState().launchCurrentTrip(trip.id).catch(err => console.error(err));
+                                const url = buildGoogleMapsUrl(trip.stops);
+                                if (url) window.location.href = url;
+                            }}
+                            title="Open in Google Maps"
+                            className="w-8 h-8 rounded-full bg-accent border border-accent/70 flex items-center justify-center text-base hover:brightness-110 transition-colors cursor-pointer text-black"
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

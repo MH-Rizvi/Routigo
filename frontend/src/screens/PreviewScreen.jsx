@@ -12,25 +12,25 @@ import useTripStore from '../store/tripStore';
 export default function PreviewScreen() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { launchCurrentTrip } = useTripStore();
+    const { editTrip } = useTripStore();
 
     const initialStops = location.state?.stops || [];
     const tripId = location.state?.tripId || null;
     const [stops, setStops] = useState(initialStops);
     const [showSaveModal, setShowSaveModal] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
 
     const handleReorder = (reordered) => setStops(reordered);
     const handleDeleteStop = (index) => setStops((prev) => prev.filter((_, i) => i !== index));
 
-    const handleOpenGoogleMaps = async () => {
-        if (tripId) await launchCurrentTrip(tripId);
-        const url = buildGoogleMapsUrl(stops);
-        if (url) window.open(url, '_blank');
-    };
-
-    const handleOpenAppleMaps = () => {
-        const url = buildAppleMapsUrl(stops);
-        if (url) window.open(url, '_blank');
+    const handleOverwriteCurrent = async () => {
+        if (!tripId || stops.length < 2) return;
+        setIsSaving(true);
+        const updated = await editTrip(tripId, { stops });
+        setIsSaving(false);
+        if (updated) {
+            navigate(`/trips/${tripId}`);
+        }
     };
 
     return (
@@ -82,17 +82,20 @@ export default function PreviewScreen() {
                         <StopList stops={stops} onReorder={handleReorder} onDelete={handleDeleteStop} />
 
                         <div className="flex flex-col gap-3 mt-6">
-                            <button onClick={handleOpenGoogleMaps} disabled={stops.length < 2} className="w-full min-h-touch rounded-xl btn-accent text-lg flex items-center justify-center gap-2 disabled:opacity-30">
-                                Navigate in Google Maps
-                            </button>
-                            {isIOS() && (
-                                <button onClick={handleOpenAppleMaps} disabled={stops.length < 2} className="w-full min-h-touch rounded-xl btn-surface text-lg flex items-center justify-center gap-2 disabled:opacity-30">
-                                    Open in Apple Maps
+                            {tripId ? (
+                                <>
+                                    <button onClick={handleOverwriteCurrent} disabled={stops.length < 2 || isSaving} className="w-full min-h-touch rounded-xl bg-success hover:bg-emerald-600 text-white font-bold text-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50">
+                                        {isSaving ? 'Saving...' : 'Overwrite Current'}
+                                    </button>
+                                    <button onClick={() => setShowSaveModal(true)} disabled={stops.length < 2 || isSaving} className="w-full min-h-touch rounded-xl btn-surface text-lg flex items-center justify-center gap-2 disabled:opacity-50 transition-colors">
+                                        Save as New
+                                    </button>
+                                </>
+                            ) : (
+                                <button onClick={() => setShowSaveModal(true)} disabled={stops.length < 2 || isSaving} className="w-full min-h-touch rounded-xl bg-success hover:bg-emerald-600 text-white font-bold text-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50">
+                                    Save Route
                                 </button>
                             )}
-                            <button onClick={() => setShowSaveModal(true)} className="w-full min-h-touch rounded-xl bg-success hover:bg-emerald-600 text-white font-bold text-lg flex items-center justify-center gap-2 transition-colors">
-                                Save This Trip
-                            </button>
                         </div>
                     </>
                 )}

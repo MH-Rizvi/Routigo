@@ -103,8 +103,10 @@ async def geocode(query: str) -> Dict[str, Any]:
         except:
             return None
 
-    # Extract state from DEFAULT_CITY
-    default_state = settings.default_city.split(",")[-1].strip() if settings.default_city and "," in settings.default_city else ""
+    # Extract city and state from DEFAULT_CITY
+    default_parts = [p.strip() for p in settings.default_city.split(",")] if settings.default_city else []
+    default_city_name = default_parts[0] if default_parts else ""
+    default_state = default_parts[-1] if len(default_parts) > 1 else ""
 
     # 2. Prepare search query
     search_query = query.strip()
@@ -119,14 +121,19 @@ async def geocode(query: str) -> Dict[str, Any]:
     confidence = "high"
 
     # 3 & 4. Confidence check and Retry
-    if top_result and default_state:
+    if top_result:
         fmt_addr = top_result.get("formatted_address", "")
-        if default_state not in fmt_addr:
+        
+        is_missing_state = default_state and default_state not in fmt_addr
+        is_missing_city = default_city_name and default_city_name.lower() not in fmt_addr.lower()
+        
+        if is_missing_state or is_missing_city:
             confidence = "low"
             # Retry with ", {DEFAULT_CITY}" appended
             retry_query = f"{query.strip()}, {settings.default_city}"
             if search_query != retry_query:
-                logger.info("Result '%s' outside state '%s'. Retrying with '%s'", fmt_addr, default_state, retry_query)
+                missing = "city" if is_missing_city else "state"
+                logger.info("Result '%s' missing %s from DEFAULT_CITY. Retrying with '%s'", fmt_addr, missing, retry_query)
                 data2 = await _fetch_geocode(retry_query)
                 results2 = data2.get("results", []) if data2 and data2.get("status") == "OK" else []
                 if results2:

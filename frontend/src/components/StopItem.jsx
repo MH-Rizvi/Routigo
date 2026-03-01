@@ -4,7 +4,7 @@
 export default function StopItem({ stop, index, onDelete, dragHandleProps }) {
     return (
         <div className="flex items-center gap-3 card p-3">
-            <div {...dragHandleProps} className="flex items-center justify-center w-8 h-8 rounded-lg bg-elevated text-text-muted cursor-grab active:cursor-grabbing shrink-0">
+            <div {...dragHandleProps} className="flex items-center justify-center w-8 h-8 rounded-lg bg-elevated text-text-muted cursor-grab active:cursor-grabbing shrink-0 touch-none">
                 ⠿
             </div>
             <div className="w-7 h-7 rounded-full bg-accent/20 border border-accent/50 text-accent flex items-center justify-center text-xs font-bold font-mono shrink-0">
