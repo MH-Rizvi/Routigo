@@ -36,16 +36,14 @@ export default function PreviewScreen() {
     return (
         <div className="min-h-full pb-6">
             {/* Header */}
-            <div className="px-4 pt-4 pb-3 border-b border-border glass-bar flex items-center justify-between">
-                <img src="/logo.png" alt="RouteEasy" className="h-8 w-auto" />
+            <div className="h-16 flex items-center justify-between px-5 border-b border-[#1F2937] shrink-0">
+                <img src="/logo.png" alt="RouteEasy" className="h-9 w-auto" />
                 <button onClick={() => navigate(-1)} className="min-h-touch flex items-center gap-1 text-accent font-semibold text-sm">
                     ← Back
                 </button>
             </div>
 
-            <div className="px-4 pt-4">
-                <h1 className="text-2xl font-bold text-text-primary mb-1">Route Preview</h1>
-                <div className="accent-line mb-4" />
+            <div className="px-5 mt-5">
 
                 {stops.length === 0 ? (
                     <div className="text-center py-16 animate-fade-up">

@@ -65,15 +65,14 @@ export default function TripDetailScreen() {
 
     return (
         <div className="min-h-full pb-6">
-            <div className="px-4 pt-4 pb-3 flex items-center justify-between border-b border-border glass-bar">
-                <img src="/logo.png" alt="RouteEasy" className="h-8 w-auto" />
+            <div className="h-16 flex items-center justify-between px-5 border-b border-[#1F2937] shrink-0">
+                <img src="/logo.png" alt="RouteEasy" className="h-9 w-auto" />
                 <button onClick={() => navigate(-1)} className="min-h-touch flex items-center gap-1 text-accent font-semibold text-sm">← Back</button>
             </div>
 
-            <div className="px-4 pt-4 animate-fade-up">
+            <div className="px-5 mt-5 animate-fade-up">
                 <h1 className="text-2xl font-bold text-text-primary mb-1">{currentTrip.name}</h1>
                 {currentTrip.notes && <p className="text-text-secondary text-sm mb-3">{currentTrip.notes}</p>}
-                <div className="accent-line mb-4" />
 
                 {stops.length > 0 && <MapPreview stops={stops} />}
 
