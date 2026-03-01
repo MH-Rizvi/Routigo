@@ -9,3 +9,4 @@ routeeasy.db
 node_modules/
 dist/
 .DS_Store
+progress.md

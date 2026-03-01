@@ -24,6 +24,7 @@ class StopBase(BaseModel):
     lat: float
     lng: float
     note: Optional[str] = None
+    approach_direction: Optional[str] = None
     position: int
 
 
@@ -37,6 +38,7 @@ class StopUpdate(BaseModel):
     lat: Optional[float] = None
     lng: Optional[float] = None
     note: Optional[str] = None
+    approach_direction: Optional[str] = None
     position: Optional[int] = None
 
 

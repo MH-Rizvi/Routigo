@@ -7,7 +7,7 @@
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import StopItem from './StopItem';
 
-export default function StopList({ stops, onReorder, onDelete }) {
+export default function StopList({ stops, onReorder, onDelete, onUpdate }) {
     const handleDragEnd = (result) => {
         if (!result.destination) return;
         if (result.source.index === result.destination.index) return;
@@ -54,6 +54,7 @@ export default function StopList({ stops, onReorder, onDelete }) {
                                             stop={stop}
                                             index={index}
                                             onDelete={onDelete}
+                                            onUpdate={onUpdate}
                                             dragHandleProps={provided.dragHandleProps}
                                         />
                                     </div>

@@ -125,15 +125,13 @@ async def geocode(query: str) -> Dict[str, Any]:
         fmt_addr = top_result.get("formatted_address", "")
         
         is_missing_state = default_state and default_state not in fmt_addr
-        is_missing_city = default_city_name and default_city_name.lower() not in fmt_addr.lower()
         
-        if is_missing_state or is_missing_city:
+        if is_missing_state:
             confidence = "low"
-            # Retry with ", {DEFAULT_CITY}" appended
+            # Retry with ", {DEFAULT_CITY}" appended if it isn't already there
             retry_query = f"{query.strip()}, {settings.default_city}"
             if search_query != retry_query:
-                missing = "city" if is_missing_city else "state"
-                logger.info("Result '%s' missing %s from DEFAULT_CITY. Retrying with '%s'", fmt_addr, missing, retry_query)
+                logger.info("Result '%s' missing state %s. Retrying with '%s'", fmt_addr, default_state, retry_query)
                 data2 = await _fetch_geocode(retry_query)
                 results2 = data2.get("results", []) if data2 and data2.get("status") == "OK" else []
                 if results2:
