@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List
@@ -9,7 +10,7 @@ from typing import Any, Dict, List
 from langchain.tools import tool  # pyright: ignore[reportMissingImports]
 
 from app.database import SessionLocal  # pyright: ignore[reportMissingImports]
-from app import models
+from app import models, schemas
 from app.services import geocoding_service, vector_service
 from app.services import trips_service
 
@@ -141,5 +142,38 @@ def get_recent_history_tool(days_str: str = "7") -> List[Dict[str, Any]]:
         ]
     finally:
         db.close()
+
+@tool("save_trip")
+def save_trip_tool(trip_data_json: str) -> str:
+    """
+    Saves a trip and its stops to the database.
+    Input MUST be a valid JSON string mapping to the trip schema:
+    {
+      "name": "string",
+      "stops": [
+        {"position": 0, "label": "string", "lat": float, "lng": float, "resolved": "string"}
+      ]
+    }
+    Output: success message with trip ID, or error message.
+    """
+    try:
+        data = json.loads(trip_data_json)
+        # Handle the case where the LLM might hallucinate a `notes` field or others not matching exactly if it isn't strict,
+        # but schemas.TripCreate handles standard parsing gracefully.
+        trip_in = schemas.TripCreate(**data)
+    except Exception as e:
+        return f"Error parsing input. Ensure you pass a valid JSON string. Detail: {str(e)}"
+    
+    async def _save():
+        db = SessionLocal()
+        try:
+            trip = await trips_service.create_trip(db, trip_in)
+            return f"Successfully saved trip '{trip.name}' with ID {trip.id}"
+        except Exception as e:
+            return f"Database error while saving trip: {str(e)}"
+        finally:
+            db.close()
+            
+    return _run_async(_save())
 
 

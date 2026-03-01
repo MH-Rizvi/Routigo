@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import logging
 import re
 from typing import Any, Dict, List
@@ -19,6 +20,7 @@ from app.agent.tools import (
     search_saved_trips_tool,
     get_trip_by_id_tool,
     get_recent_history_tool,
+    save_trip_tool,
 )
 from app.services.groq_client import groq_rotator, _is_rate_limit_error
 
@@ -32,6 +34,7 @@ _tools = [
     search_saved_trips_tool,
     get_trip_by_id_tool,
     get_recent_history_tool,
+    save_trip_tool,
 ]
 
 _prompt = PromptTemplate(
@@ -63,7 +66,7 @@ def _build_executor() -> AgentExecutor:
         agent=agent,
         tools=_tools,
         verbose=True,
-        max_iterations=8,
+        max_iterations=20,
         handle_parsing_errors=True,
         callbacks=[LLMOpsCallbackHandler()],
         return_intermediate_steps=True,
@@ -158,7 +161,30 @@ def _hide_coordinates_from_reply(reply: str) -> str:
     return re.sub(r'\s*\(-?\d+\.?\d*,\s*-?\d+\.?\d*\)\s*', ' ', reply).strip()
 
 
+_processing_messages = set()
+
 async def run_agent(
+    message: str,
+    conversation_history: List[Dict[str, Any]] | None = None,
+    db: Any | None = None,
+) -> Dict[str, Any]:
+    global _processing_messages
+    msg_hash = hashlib.md5(message.encode("utf-8")).hexdigest()
+    if msg_hash in _processing_messages:
+        logger.warning("Duplicate request detected for hash %s. Skipping.", msg_hash)
+        return {
+            "reply": "I am already processing that request. Please wait a moment...",
+            "stops": []
+        }
+        
+    _processing_messages.add(msg_hash)
+    try:
+        return await _run_agent_internal(message, conversation_history, db)
+    finally:
+        _processing_messages.discard(msg_hash)
+
+
+async def _run_agent_internal(
     message: str,
     conversation_history: List[Dict[str, Any]] | None = None,
     db: Any | None = None,
@@ -291,8 +317,8 @@ async def run_agent(
                         logger.warning("All Gemini keys exhausted.")
                         break
 
-    logger.error("All LLM keys rate-limited. Giving up. Last exc: %s", last_exc)
-    return {
-        "reply": "I'm a bit busy right now, please try again in a moment",
-        "stops": []
-    }
+        logger.error("All LLM keys rate-limited. Giving up. Last exc: %s", last_exc)
+        return {
+            "reply": "I'm a bit busy right now, please try again in a moment",
+            "stops": []
+        }
