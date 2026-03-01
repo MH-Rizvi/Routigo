@@ -31,9 +31,20 @@ export default function HistoryScreen() {
     return (
         <div className="min-h-full pb-4">
             {/* Header */}
-            <div className="h-16 flex items-center justify-between px-5 border-b border-[#1F2937] shrink-0">
-                <img src="/logo.png" alt="RouteEasy" className="h-9 w-auto" />
-                <span className="text-[#9CA3AF] text-[13px] font-medium">History</span>
+            <div className="h-14 flex items-center justify-between px-5 border-b border-[#1F2937] shrink-0">
+                <div className="flex items-center gap-[10px]">
+                    <img
+                        src="/logo2_nobg.png"
+                        alt="RouteEasy Icon"
+                        className="w-[40px] h-[40px] object-contain"
+                        style={{ filter: 'brightness(1.2) drop-shadow(0 0 4px rgba(245,158,11,0.3))' }}
+                    />
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '20px' }}>
+                        <span className="text-white font-bold tracking-tight">Route</span>
+                        <span className="text-[#F59E0B] font-bold tracking-tight">Easy</span>
+                    </div>
+                </div>
+                <span className="text-[#4B5563] text-[13px] font-medium">History</span>
             </div>
 
             <div className="px-5 mt-5">
@@ -61,9 +72,14 @@ export default function HistoryScreen() {
                         </button>
                     </div>
 
-                    <div className="flex flex-wrap gap-2 mb-4">
+                    <div className="grid grid-cols-2 gap-[10px] mb-4">
                         {RAG_EXAMPLES.map((q) => (
-                            <button key={q} onClick={() => { setRagQuestion(q); handleAskRAG(q); }} disabled={ragLoading} className="chip min-h-touch px-3 py-2 text-xs disabled:opacity-50">
+                            <button
+                                key={q}
+                                onClick={() => { setRagQuestion(q); handleAskRAG(q); }}
+                                disabled={ragLoading}
+                                className="bg-[#111827] border border-[#F59E0B] rounded-[20px] px-3 py-2 text-[#F59E0B] text-[12px] text-center disabled:opacity-50 transition-colors active:bg-[#F59E0B]/10"
+                            >
                                 {q}
                             </button>
                         ))}
@@ -101,7 +117,7 @@ export default function HistoryScreen() {
                     {/* Timeline layout */}
                     <div className="relative">
                         {history.length > 0 && (
-                            <div className="absolute left-[11px] top-3 bottom-3 w-px bg-accent/30" />
+                            <div className="absolute left-[7px] top-3 bottom-3 w-px bg-[#1F2937]" />
                         )}
                         <div className="space-y-4">
                             {history.map((h, idx) => {
@@ -110,21 +126,20 @@ export default function HistoryScreen() {
                                 try { stopsCount = JSON.parse(h.stops_json || '[]').length; } catch { stopsCount = 0; }
 
                                 return (
-                                    <div key={h.id} className="flex gap-3 animate-fade-up" style={{ animationDelay: `${idx * 40}ms` }}>
+                                    <div key={h.id} className="flex gap-4 animate-fade-up items-stretch" style={{ animationDelay: `${idx * 40}ms` }}>
                                         {/* Timeline dot */}
-                                        <div className="relative z-10 w-6 h-6 rounded-full bg-base border-2 border-accent flex items-center justify-center shrink-0 mt-1">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-                                        </div>
+                                        <div className="relative z-10 w-4 h-4 rounded-full bg-[#111827] border-[4px] border-[#F59E0B] shrink-0 mt-5" />
+
                                         {/* Card */}
-                                        <div className="card p-3 flex-1">
+                                        <div className="bg-[#111827] border-[1px] border-[#1F2937] border-l-[3px] border-l-[#F59E0B] rounded-xl p-4 flex-1">
                                             <div className="flex items-center justify-between">
-                                                <h3 className="text-sm font-bold text-text-primary truncate">{h.trip_name || 'Unnamed Trip'}</h3>
-                                                <span className="text-[11px] text-text-muted shrink-0 ml-2 font-mono">
+                                                <h3 className="text-[16px] font-semibold text-white truncate">{h.trip_name || 'Unnamed Trip'}</h3>
+                                                <span className="text-[12px] text-[#6B7280] shrink-0 ml-2">
                                                     {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}{' '}
                                                     {date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
                                                 </span>
                                             </div>
-                                            <p className="text-xs text-text-muted mt-0.5 font-mono">{stopsCount} stops</p>
+                                            <p className="text-[13px] text-[#6B7280] mt-0.5">{stopsCount} stops</p>
                                         </div>
                                     </div>
                                 );

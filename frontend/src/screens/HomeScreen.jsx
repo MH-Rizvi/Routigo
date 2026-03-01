@@ -31,9 +31,25 @@ export default function HomeScreen() {
     return (
         <div className="min-h-full pb-4 flex flex-col">
             {/* Header */}
-            <div className="h-16 flex items-center justify-between px-5 border-b border-[#1F2937] shrink-0">
-                <img src="/logo.png" alt="RouteEasy" className="h-9 w-auto" />
-                <span className="text-[#9CA3AF] text-[13px] font-medium">Good morning 👋</span>
+            <div className="h-14 flex items-center justify-between px-5 border-b border-[#1F2937] shrink-0">
+                <div className="flex items-center gap-[10px]">
+                    <img
+                        src="/logo2_nobg.png"
+                        alt="RouteEasy Icon"
+                        className="w-[40px] h-[40px] object-contain"
+                        style={{ filter: 'brightness(1.2) drop-shadow(0 0 4px rgba(245,158,11,0.3))' }}
+                    />
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '20px' }}>
+                        <span className="text-white font-bold tracking-tight">Route</span>
+                        <span className="text-[#F59E0B] font-bold tracking-tight">Easy</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Greeting */}
+            <div className="px-5 pt-6 animate-fade-up">
+                <p className="text-[#9CA3AF] text-[14px]">Good morning</p>
+                <h1 className="text-white text-[28px] font-bold mt-1">Ready to roll?</h1>
             </div>
 
             <div className="px-5 mt-5 flex-1 flex flex-col">
@@ -61,14 +77,16 @@ export default function HomeScreen() {
 
                 {/* Empty state */}
                 {!loading && trips.length === 0 && (
-                    <div className="flex-1 flex flex-col items-center justify-center mt-10 pb-12 text-center animate-fade-up">
-                        <div className="w-12 h-12 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mb-4">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2"><circle cx="12" cy="10" r="3" /><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z" /></svg>
-                        </div>
-                        <h2 className="text-lg font-bold text-text-primary mb-1">No routes saved</h2>
-                        <p className="text-text-secondary text-sm mb-5 max-w-xs">Plan your first route with our AI assistant</p>
-                        <button onClick={() => navigate('/chat')} className="btn-accent min-h-touch px-8 text-lg">
-                            Plan New Route
+                    <div className="flex-1 flex flex-col items-center justify-center pb-12 text-center animate-fade-up mt-8">
+                        <div className="text-[48px] mb-4 leading-none">🚌</div>
+                        <h2 className="text-[18px] font-semibold text-white mb-2">No routes saved yet</h2>
+                        <p className="text-[#6B7280] text-[14px] mb-6 max-w-xs px-4">Describe your first route to the AI assistant</p>
+                        <button
+                            onClick={() => navigate('/chat')}
+                            className="w-full h-14 bg-[#F59E0B] text-black font-bold text-[18px] rounded-2xl flex items-center justify-center transition-transform active:scale-95"
+                            style={{ boxShadow: '0 4px 24px rgba(245,158,11,0.25)' }}
+                        >
+                            ＋ Plan New Route
                         </button>
                     </div>
                 )}
@@ -109,9 +127,9 @@ export default function HomeScreen() {
 
 function StatCard({ label, value }) {
     return (
-        <div className="card px-4 py-5 text-center">
-            <p className="text-[28px] font-bold text-white mb-1 leading-none">{String(value)}</p>
-            <p className="text-[11px] text-text-muted uppercase tracking-wider mt-0.5">{label}</p>
+        <div className="bg-[#111827] border border-[#1F2937] rounded-xl p-4 text-center">
+            <p className="text-[32px] font-bold text-white mb-0.5 leading-none">{String(value)}</p>
+            <p className="text-[#6B7280] text-[11px] uppercase tracking-wider">{label}</p>
         </div>
     );
 }

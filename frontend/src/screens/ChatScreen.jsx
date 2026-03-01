@@ -30,8 +30,19 @@ export default function ChatScreen() {
     return (
         <div className="flex flex-col h-full">
             {/* Header */}
-            <div className="h-16 flex items-center justify-between px-5 border-b border-[#1F2937] shrink-0">
-                <img src="/logo.png" alt="RouteEasy" className="h-9 w-auto" />
+            <div className="h-14 flex items-center justify-between px-5 border-b border-[#1F2937] shrink-0">
+                <div className="flex items-center gap-[10px]">
+                    <img
+                        src="/logo2_nobg.png"
+                        alt="RouteEasy Icon"
+                        className="w-[40px] h-[40px] object-contain"
+                        style={{ filter: 'brightness(1.2) drop-shadow(0 0 4px rgba(245,158,11,0.3))' }}
+                    />
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '20px' }}>
+                        <span className="text-white font-bold tracking-tight">Route</span>
+                        <span className="text-[#F59E0B] font-bold tracking-tight">Easy</span>
+                    </div>
+                </div>
                 {messages.length > 0 && (
                     <button onClick={resetChat} className="min-h-touch px-3 text-sm text-accent font-medium hover:underline">
                         New Chat
@@ -46,11 +57,15 @@ export default function ChatScreen() {
                         <div className="w-16 h-16 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mb-5">
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
                         </div>
-                        <h2 className="text-xl font-bold text-text-primary mb-2">Where to?</h2>
-                        <p className="text-text-secondary mb-6 max-w-xs text-sm">Describe your route in plain language</p>
-                        <div className="grid grid-cols-2 gap-3 max-w-sm w-full px-2">
+                        <h2 className="text-[26px] font-bold text-white mb-2">Where to?</h2>
+                        <p className="text-[#6B7280] mb-6 max-w-xs text-[14px]">Describe your route in plain language</p>
+                        <div className="grid grid-cols-2 gap-[10px] max-w-sm w-full px-2">
                             {PROMPTS.map((p) => (
-                                <button key={p} onClick={() => sendMessage(p)} className="chip min-h-touch p-3 text-sm text-center">
+                                <button
+                                    key={p}
+                                    onClick={() => sendMessage(p)}
+                                    className="bg-[#111827] border border-[#F59E0B] rounded-[20px] px-4 py-2.5 text-[#F59E0B] text-[14px] text-center transition-colors active:bg-[#F59E0B]/10"
+                                >
                                     {p}
                                 </button>
                             ))}

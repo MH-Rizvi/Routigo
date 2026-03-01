@@ -26,7 +26,7 @@ function TripRow({ trip, onDelete, onTap }) {
                 <span className="text-white font-bold text-sm">Delete</span>
             </div>
             <div
-                className="relative card card-accent p-4 cursor-pointer transition-transform"
+                className="relative bg-[#111827] border-l-[3px] border-[#F59E0B] rounded-xl p-4 cursor-pointer transition-transform flex items-center justify-between"
                 style={{ transform: `translateX(-${offset}px)` }}
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
@@ -35,27 +35,28 @@ function TripRow({ trip, onDelete, onTap }) {
                 role="button"
                 tabIndex={0}
             >
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                        {/* Route dots */}
-                        <div className="flex flex-col items-center gap-0.5 shrink-0">
-                            <span className="w-2 h-2 rounded-full bg-accent" />
-                            <span className="w-px h-2 bg-border-hl" />
-                            <span className="w-2 h-2 rounded-full border border-accent bg-transparent" />
-                        </div>
-                        <div className="min-w-0">
-                            <h3 className="text-base font-bold text-text-primary truncate">{trip.name}</h3>
-                            <div className="flex items-center gap-2 text-xs text-text-muted mt-0.5">
-                                <span className="font-mono">{stopCount} stops</span>
-                                {lastUsed && <span>• {lastUsed}</span>}
-                            </div>
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="min-w-0">
+                        <h3 className="text-[16px] font-semibold text-white truncate">{trip.name}</h3>
+                        <div className="flex items-center gap-2 text-[13px] text-[#6B7280] mt-0.5">
+                            <span>{stopCount} stops</span>
+                            {lastUsed && <span>• last used {lastUsed}</span>}
                         </div>
                     </div>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0">
                     {trip.similarity !== undefined && (
-                        <span className="shrink-0 ml-2 px-2.5 py-1 rounded-full bg-accent/10 text-accent text-xs font-bold font-mono border border-accent/30">
+                        <span className="px-2.5 py-1 rounded-full bg-accent/10 text-accent text-xs font-bold font-mono border border-accent/30">
                             {Math.round(trip.similarity * 100)}%
                         </span>
                     )}
+                    <button
+                        onClick={(e) => { e.stopPropagation(); /* launch logic handled by detail view conceptually, but here's the UI */ }}
+                        className="bg-[#F59E0B]/10 text-[#F59E0B] text-[12px] font-bold px-3 py-1.5 rounded-full border border-[#F59E0B]/30 flex items-center gap-1 active:bg-[#F59E0B]/20"
+                    >
+                        ▶ Launch
+                    </button>
                 </div>
             </div>
         </div>
@@ -74,9 +75,20 @@ export default function TripsScreen() {
     return (
         <div className="min-h-full pb-4">
             {/* Header */}
-            <div className="h-16 flex items-center justify-between px-5 border-b border-[#1F2937] shrink-0">
-                <img src="/logo.png" alt="RouteEasy" className="h-9 w-auto" />
-                <span className="text-[#9CA3AF] text-[13px] font-medium">My Trips</span>
+            <div className="h-14 flex items-center justify-between px-5 border-b border-[#1F2937] shrink-0">
+                <div className="flex items-center gap-[10px]">
+                    <img
+                        src="/logo2_nobg.png"
+                        alt="RouteEasy Icon"
+                        className="w-[40px] h-[40px] object-contain"
+                        style={{ filter: 'brightness(1.2) drop-shadow(0 0 4px rgba(245,158,11,0.3))' }}
+                    />
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '20px' }}>
+                        <span className="text-white font-bold tracking-tight">Route</span>
+                        <span className="text-[#F59E0B] font-bold tracking-tight">Easy</span>
+                    </div>
+                </div>
+                <span className="text-[#4B5563] text-[13px] font-medium">My Trips</span>
             </div>
 
             <div className="px-5 mt-5">

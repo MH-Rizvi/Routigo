@@ -36,8 +36,19 @@ export default function PreviewScreen() {
     return (
         <div className="min-h-full pb-6">
             {/* Header */}
-            <div className="h-16 flex items-center justify-between px-5 border-b border-[#1F2937] shrink-0">
-                <img src="/logo.png" alt="RouteEasy" className="h-9 w-auto" />
+            <div className="h-14 flex items-center justify-between px-5 border-b border-[#1F2937] shrink-0">
+                <div className="flex items-center gap-[10px]">
+                    <img
+                        src="/logo2_nobg.png"
+                        alt="RouteEasy Icon"
+                        className="w-[40px] h-[40px] object-contain"
+                        style={{ filter: 'brightness(1.2) drop-shadow(0 0 4px rgba(245,158,11,0.3))' }}
+                    />
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '20px' }}>
+                        <span className="text-white font-bold tracking-tight">Route</span>
+                        <span className="text-[#F59E0B] font-bold tracking-tight">Easy</span>
+                    </div>
+                </div>
                 <button onClick={() => navigate(-1)} className="min-h-touch flex items-center gap-1 text-accent font-semibold text-sm">
                     ← Back
                 </button>

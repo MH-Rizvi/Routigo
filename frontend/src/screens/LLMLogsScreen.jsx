@@ -30,9 +30,20 @@ export default function LLMLogsScreen() {
     return (
         <div className="min-h-full pb-4">
             {/* Header */}
-            <div className="h-16 flex items-center justify-between px-5 border-b border-[#1F2937] shrink-0">
-                <img src="/logo.png" alt="RouteEasy" className="h-9 w-auto" />
-                <span className="text-[#9CA3AF] text-[13px] font-medium">LLM Logs</span>
+            <div className="h-14 flex items-center justify-between px-5 border-b border-[#1F2937] shrink-0">
+                <div className="flex items-center gap-[10px]">
+                    <img
+                        src="/logo2_nobg.png"
+                        alt="RouteEasy Icon"
+                        className="w-[40px] h-[40px] object-contain"
+                        style={{ filter: 'brightness(1.2) drop-shadow(0 0 4px rgba(245,158,11,0.3))' }}
+                    />
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '20px' }}>
+                        <span className="text-white font-bold tracking-tight">Route</span>
+                        <span className="text-[#F59E0B] font-bold tracking-tight">Easy</span>
+                    </div>
+                </div>
+                <span className="text-[#4B5563] text-[13px] font-medium">LLM Logs</span>
             </div>
 
             <div className="px-5 mt-5">
@@ -70,7 +81,7 @@ export default function LLMLogsScreen() {
                             <div className="overflow-x-auto -mx-4 animate-fade-up" style={{ animationDelay: '100ms' }}>
                                 <table className="min-w-full text-sm">
                                     <thead>
-                                        <tr className="border-b border-border text-left">
+                                        <tr className="border-b border-[#1F2937] text-left text-[#6B7280]">
                                             <Th>Time</Th><Th>Model</Th><Th>Version</Th><Th right>In</Th><Th right>Out</Th><Th right>Latency</Th><Th center>Status</Th>
                                         </tr>
                                     </thead>
@@ -78,8 +89,10 @@ export default function LLMLogsScreen() {
                                         {logs.map((log, i) => {
                                             const ts = new Date(log.timestamp);
                                             const latPct = maxLatency > 0 ? Math.round(((log.latency_ms || 0) / maxLatency) * 100) : 0;
+                                            const rowBg = i % 2 === 0 ? 'bg-[#0A0F1E]' : 'bg-[#111827]';
+
                                             return (
-                                                <tr key={log.id} className="border-b border-border/50 hover:bg-elevated/50 transition-colors animate-fade-up" style={{ animationDelay: `${100 + i * 15}ms` }}>
+                                                <tr key={log.id} className={`${rowBg} transition-colors animate-fade-up`} style={{ animationDelay: `${100 + i * 15}ms` }}>
                                                     <td className="px-4 py-3 whitespace-nowrap text-text-secondary font-mono text-xs">
                                                         {ts.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}{' '}
                                                         {ts.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
@@ -90,10 +103,10 @@ export default function LLMLogsScreen() {
                                                     <td className="px-4 py-3 text-right text-text-primary font-mono text-xs">{log.output_tokens ?? '—'}</td>
                                                     <td className="px-4 py-3 text-right">
                                                         <div className="flex items-center justify-end gap-2">
-                                                            <div className="w-16 h-1.5 rounded-full bg-border overflow-hidden">
-                                                                <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${latPct}%` }} />
+                                                            <div className="w-16 h-1.5 rounded-full bg-[#1F2937] overflow-hidden">
+                                                                <div className="h-full rounded-full bg-[#F59E0B] transition-all" style={{ width: `${latPct}%` }} />
                                                             </div>
-                                                            <span className="text-text-secondary font-mono text-xs w-12 text-right">{log.latency_ms ? `${log.latency_ms}ms` : '—'}</span>
+                                                            <span className="text-[#9CA3AF] font-mono text-xs w-12 text-right">{log.latency_ms ? `${log.latency_ms}ms` : '—'}</span>
                                                         </div>
                                                     </td>
                                                     <td className="px-4 py-3 text-center">
@@ -123,10 +136,10 @@ function Th({ children, right, center }) {
 
 function MetricCard({ icon, label, value, highlight }) {
     return (
-        <div className={`card p-4 text-center animate-fade-up ${highlight ? 'border-success/30' : ''}`}>
-            <div className="flex justify-center mb-2 text-accent">{icon}</div>
-            <p className="text-xl font-extrabold text-text-primary font-mono">{value}</p>
-            <p className="text-[10px] text-text-muted uppercase tracking-widest mt-1">{label}</p>
+        <div className={`bg-[#111827] border ${highlight ? 'border-success/50' : 'border-[#1F2937]'} rounded-xl p-4 text-center animate-fade-up`}>
+            <div className={`flex justify-center mb-2 ${highlight ? 'text-success' : 'text-[#F59E0B]'}`}>{icon}</div>
+            <p className="text-[32px] font-bold text-white leading-none mb-0.5 font-mono">{value}</p>
+            <p className="text-[#6B7280] text-[11px] uppercase tracking-wider">{label}</p>
         </div>
     );
 }

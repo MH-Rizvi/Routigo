@@ -22,15 +22,17 @@ export default function ChatInput({ onSend, loading = false }) {
                 disabled={loading || isTranscribing}
                 onTranscribing={setIsTranscribing}
             />
-            <input
-                type="text"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); } }}
-                placeholder={loading ? 'Thinking…' : isTranscribing ? 'Transcribing audio…' : 'Describe your route…'}
-                disabled={loading || isTranscribing}
-                className="flex-1 min-h-touch rounded-xl border border-border bg-surface px-4 py-3 text-base text-text-primary placeholder:text-text-muted disabled:opacity-50"
-            />
+            <div className="flex-1 bg-[#111827] border border-[#1F2937] focus-within:border-[#F59E0B] rounded-[14px] flex items-center px-4 transition-colors">
+                <input
+                    type="text"
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); } }}
+                    placeholder={loading ? 'Thinking…' : isTranscribing ? 'Transcribing audio…' : 'Describe your route…'}
+                    disabled={loading || isTranscribing}
+                    className="w-full bg-transparent py-3 text-base text-white placeholder:text-[#6B7280] outline-none disabled:opacity-50"
+                />
+            </div>
             <button
                 onClick={handleSubmit}
                 disabled={loading || isTranscribing || !text.trim()}
