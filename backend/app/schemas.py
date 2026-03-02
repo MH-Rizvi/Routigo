@@ -201,4 +201,23 @@ class HistoryQuestionResponse(BaseModel):
     answer: str
     sources_used: int
 
+# ----- Stats schemas -----
+
+class StatsSummaryResponse(BaseModel):
+    trips_today: int
+    trips_this_week: int
+    stops_today: int
+    stops_this_week: int
+    miles_today: float
+    miles_this_week: float
+    miles_all_time: float
+    total_trips: int
+    total_stops: int
+
+class DailyStatResponse(BaseModel):
+    date: str
+    trips: int
+    stops: int
+    miles: float
+
 

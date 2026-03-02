@@ -16,6 +16,64 @@ const api = axios.create({
     },
 });
 
+let _accessToken = null;
+let _refreshToken = null;
+
+export const setTokens = (access, refresh) => {
+    if (access) _accessToken = access;
+    if (refresh) _refreshToken = refresh;
+};
+
+export const clearTokens = () => {
+    _accessToken = null;
+    _refreshToken = null;
+};
+
+// Request Interceptor: Attach Bearer token to all requests if present
+api.interceptors.request.use((config) => {
+    if (_accessToken) {
+        config.headers.Authorization = `Bearer ${_accessToken}`;
+    }
+    return config;
+});
+
+// Response Interceptor: Handle 401s by attempting to refresh the token automatically
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+
+        // Only attempt refresh if it's a 401 and we haven't retried yet
+        // Also skip retry if the request was specifically for login or refresh itself
+        if (
+            error.response?.status === 401 &&
+            !originalRequest._retry &&
+            !originalRequest.url.includes('/auth/login') &&
+            !originalRequest.url.includes('/auth/refresh')
+        ) {
+            originalRequest._retry = true;
+            try {
+                if (!_refreshToken) throw new Error('No refresh token available');
+
+                // Call refresh endpoint directly with axios to avoid interceptor loop
+                const { data } = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/refresh`, {}, {
+                    headers: { Authorization: `Bearer ${_refreshToken}` }
+                });
+
+                // Update in-memory token and retry the failed request
+                _accessToken = data.access_token;
+                originalRequest.headers.Authorization = `Bearer ${_accessToken}`;
+                return api(originalRequest);
+            } catch (refreshError) {
+                // If refresh fails, clear tokens and aggressively redirect to login
+                clearTokens();
+                window.location.href = '/login';
+                return Promise.reject(refreshError);
+            }
+        }
+        return Promise.reject(error);
+    }
+);
 // ─────────────────────────────────────────────
 // Agent
 // ─────────────────────────────────────────────
@@ -154,6 +212,36 @@ export const transcribeVoice = async (audioBlob) => {
             'Content-Type': 'multipart/form-data',
         },
     });
+    return data;
+};
+
+// ─────────────────────────────────────────────
+// Authentication
+// ─────────────────────────────────────────────
+
+/** Login with email and password */
+export const login = async (email, password) => {
+    const { data } = await api.post('/auth/login', { email, password });
+    setTokens(data.access_token, data.refresh_token);
+    return data;
+};
+
+/** Signup new user */
+export const signup = async (email, password, city, state, zip_code) => {
+    const { data } = await api.post('/auth/signup', { email, password, city, state, zip_code });
+    setTokens(data.access_token, data.refresh_token);
+    return data;
+};
+
+/** Logout user */
+export const logout = () => {
+    clearTokens();
+    window.location.href = '/login';
+};
+
+/** Get the currently logged-in user profile */
+export const getMe = async () => {
+    const { data } = await api.get('/auth/me');
     return data;
 };
 
