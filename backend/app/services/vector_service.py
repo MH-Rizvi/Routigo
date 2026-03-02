@@ -172,6 +172,19 @@ def delete_trip(chroma_id: str) -> None:
         trips_collection.delete(ids=[chroma_id])
 
 
+def delete_history_entry(chroma_id: str) -> None:
+    """Delete a history document from the trip_history collection."""
+    if chroma_id:
+        history_collection.delete(ids=[chroma_id])
+
+
+def clear_history() -> None:
+    """Delete all history documents."""
+    results = history_collection.get()
+    if results and results.get("ids"):
+        history_collection.delete(ids=results["ids"])
+
+
 def _format_results(chroma_results: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
     Convert ChromaDB query results into a list of dicts with similarity scores.

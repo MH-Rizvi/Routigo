@@ -44,7 +44,7 @@ export default function HomeScreen() {
                     <img
                         src="/logo2_nobg.png"
                         alt="RouteEasy Icon"
-                        className="w-[40px] h-[40px] object-contain"
+                        className="w-[48px] h-[48px] object-contain"
                         style={{ filter: 'brightness(1.2) drop-shadow(0 0 4px rgba(245,158,11,0.3))' }}
                     />
                     <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '20px' }}>
@@ -102,7 +102,7 @@ export default function HomeScreen() {
                 )}
 
                 {/* Trip cards */}
-                <div className="space-y-3">
+                <div className="space-y-3 mb-20">
                     {topTrips.map((trip, idx) => (
                         <div key={trip.id} className="animate-fade-up" style={{ animationDelay: `${120 + idx * 50}ms` }}>
                             <TripCard trip={trip} />

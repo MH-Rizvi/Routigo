@@ -66,6 +66,16 @@ export default {
                     '0%, 100%': { boxShadow: '0 0 15px rgba(245,158,11,0.2)' },
                     '50%': { boxShadow: '0 0 25px rgba(245,158,11,0.4)' },
                 },
+                'gradient-x': {
+                    '0%, 100%': {
+                        'background-size': '200% 200%',
+                        'background-position': 'left center'
+                    },
+                    '50%': {
+                        'background-size': '200% 200%',
+                        'background-position': 'right center'
+                    },
+                },
             },
             animation: {
                 'fade-up': 'fade-up 0.15s ease-out forwards',
@@ -73,6 +83,7 @@ export default {
                 'pulse-amber': 'pulse-amber 1.4s infinite ease-in-out both',
                 'shimmer': 'shimmer 1.5s infinite linear',
                 'glow-pulse': 'glow-pulse 2s infinite ease-in-out',
+                'gradient-x': 'gradient-x 8s ease infinite',
             },
         },
     },

@@ -91,7 +91,7 @@ export default function TripDetailScreen() {
                     <img
                         src="/logo2_nobg.png"
                         alt="RouteEasy Icon"
-                        className="w-[40px] h-[40px] object-contain"
+                        className="w-[48px] h-[48px] object-contain"
                         style={{ filter: 'brightness(1.2) drop-shadow(0 0 4px rgba(245,158,11,0.3))' }}
                     />
                     <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '20px' }}>

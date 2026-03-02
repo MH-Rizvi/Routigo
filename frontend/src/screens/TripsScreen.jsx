@@ -28,7 +28,7 @@ function TripRow({ trip, onDelete, onTap }) {
                 <span className="text-white font-bold text-sm">Delete</span>
             </div>
             <div
-                className="relative bg-[#111827] border-l-[3px] border-[#F59E0B] rounded-xl p-4 cursor-pointer transition-transform flex items-center justify-between"
+                className="relative glass-card rounded-xl p-4 cursor-pointer flex items-center justify-between group"
                 style={{ transform: `translateX(-${offset}px)` }}
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
@@ -37,12 +37,13 @@ function TripRow({ trip, onDelete, onTap }) {
                 role="button"
                 tabIndex={0}
             >
-                <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-accent to-orange-600 rounded-l-xl opacity-80" />
+                <div className="flex items-center gap-3 min-w-0 flex-1 pl-2">
                     <div className="min-w-0">
-                        <h3 className="text-[16px] font-semibold text-white truncate">{trip.name}</h3>
-                        <div className="flex items-center gap-2 text-[13px] text-[#6B7280] mt-0.5">
-                            <span>{stopCount} stops</span>
-                            {lastUsed && <span>• last used {lastUsed}</span>}
+                        <h3 className="text-[17px] font-bold text-white truncate group-hover:text-accent transition-colors">{trip.name}</h3>
+                        <div className="flex items-center gap-2 text-[13px] text-text-secondary mt-1">
+                            <span className="bg-surface px-2 py-0.5 rounded-md border border-border">{stopCount} stops</span>
+                            {lastUsed && <span className="text-text-muted">• {lastUsed}</span>}
                         </div>
                     </div>
                 </div>
@@ -109,58 +110,107 @@ export default function TripsScreen() {
     const isSearching = searchResults.length > 0;
     const displayTrips = isSearching ? searchResults : trips;
 
+    const tripsThisWeek = displayTrips.filter((t) => {
+        if (!t.last_used) return false;
+        const diff = Date.now() - new Date(t.last_used).getTime();
+        return diff < 7 * 24 * 60 * 60 * 1000;
+    });
+
+    const olderTrips = displayTrips.filter(t => !tripsThisWeek.includes(t));
+
     return (
-        <div className="min-h-full pb-4">
+        <div className="min-h-full pb-6 flex flex-col">
             {/* Header */}
-            <div className="h-14 flex items-center justify-between px-5 border-b border-[#1F2937] shrink-0">
+            <div className="h-16 flex items-center justify-between px-5 border-b border-border/50 shrink-0 bg-base/80 backdrop-blur-md sticky top-0 z-30">
                 <div className="flex items-center gap-[10px]">
                     <img
                         src="/logo2_nobg.png"
                         alt="RouteEasy Icon"
-                        className="w-[40px] h-[40px] object-contain"
+                        className="w-[48px] h-[48px] object-contain"
                         style={{ filter: 'brightness(1.2) drop-shadow(0 0 4px rgba(245,158,11,0.3))' }}
                     />
                     <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '20px' }}>
                         <span className="text-white font-bold tracking-tight">Route</span>
-                        <span className="text-[#F59E0B] font-bold tracking-tight">Easy</span>
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-orange-500 font-bold tracking-tight">Easy</span>
                     </div>
                 </div>
-                <span className="text-[#4B5563] text-[13px] font-medium">My Trips</span>
+                <div className="flex flex-col items-end">
+                    <span className="text-text-primary text-[14px] font-bold">My Trips</span>
+                    <span className="text-text-muted text-[11px] font-mono">{trips.length} Total</span>
+                </div>
             </div>
 
-            <div className="px-5 mt-5">
-                <div className="mb-4"><SemanticSearchBar /></div>
+            <div className="px-5 mt-6 flex-1">
+                <div className="mb-6"><SemanticSearchBar /></div>
 
                 {loading && displayTrips.length === 0 && (
-                    <div className="space-y-3">{[1, 2, 3].map(i => <div key={i} className="skeleton rounded-2xl h-20" />)}</div>
+                    <div className="space-y-4">{[1, 2, 3].map(i => <div key={i} className="skeleton rounded-2xl h-24" />)}</div>
                 )}
 
                 {!loading && displayTrips.length === 0 && (
-                    <div className="text-center py-16 animate-fade-up">
-                        <div className="w-14 h-14 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-4">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2"><circle cx="12" cy="10" r="3" /><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z" /></svg>
+                    <div className="text-center py-20 animate-fade-up glass-panel rounded-3xl mt-10">
+                        <div className="w-16 h-16 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-4 relative overflow-hidden">
+                            <div className="absolute inset-0 bg-accent/20 animate-ping rounded-full" />
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2" className="relative z-10"><circle cx="12" cy="10" r="3" /><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z" /></svg>
                         </div>
-                        <p className="text-text-secondary">{isSearching ? 'No trips match your search' : 'No saved trips yet'}</p>
+                        <h3 className="text-lg font-bold text-white mb-1">{isSearching ? 'No routes found' : 'No saved routes'}</h3>
+                        <p className="text-text-muted text-sm px-8">{isSearching ? 'Try a different search term or ask naturally' : 'Your saved routes will appear here for easy access'}</p>
                     </div>
                 )}
 
                 {isSearching && displayTrips.length > 0 && (
-                    <p className="text-xs text-text-muted mb-2 font-mono">{displayTrips.length} result{displayTrips.length !== 1 ? 's' : ''}</p>
+                    <div className="mb-4 flex items-center justify-between">
+                        <h2 className="text-sm font-bold text-white">Search Results</h2>
+                        <span className="text-xs text-accent bg-accent/10 px-2 py-1 rounded-md font-mono">{displayTrips.length} Found</span>
+                    </div>
                 )}
 
-                <div className="space-y-3">
-                    {displayTrips.map((trip, i) => (
-                        <div key={trip.id} className="animate-fade-up" style={{ animationDelay: `${i * 40}ms` }}>
-                            <TripRow trip={trip} onDelete={async (id) => {
-                                await removeTrip(id);
-                                useToastStore.getState().showToast('Trip deleted', 'success');
-                            }} onTap={(id) => navigate(`/trips/${id}`)} />
+                {!isSearching && displayTrips.length > 0 && tripsThisWeek.length > 0 && (
+                    <div className="mb-6 animate-fade-up">
+                        <h2 className="text-xs font-bold text-text-muted uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                            Active This Week
+                        </h2>
+                        <div className="space-y-3">
+                            {tripsThisWeek.map((trip, i) => (
+                                <div key={trip.id} className="animate-fade-up" style={{ animationDelay: `${i * 40}ms` }}>
+                                    <TripRow trip={trip} onDelete={async (id) => {
+                                        await removeTrip(id);
+                                        useToastStore.getState().showToast('Trip deleted', 'success');
+                                    }} onTap={(id) => navigate(`/trips/${id}`)} />
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    </div>
+                )}
+
+                {(isSearching || olderTrips.length > 0) && displayTrips.length > 0 && (
+                    <div className="animate-fade-up" style={{ animationDelay: '100ms' }}>
+                        {!isSearching && tripsThisWeek.length > 0 && (
+                            <h2 className="text-xs font-bold text-text-muted uppercase tracking-widest mb-3 mt-8 flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-border-hl" />
+                                Older Routes
+                            </h2>
+                        )}
+                        <div className="space-y-3">
+                            {(isSearching ? displayTrips : olderTrips).map((trip, i) => (
+                                <div key={trip.id} className="animate-fade-up" style={{ animationDelay: `${(tripsThisWeek.length + i) * 40}ms` }}>
+                                    <TripRow trip={trip} onDelete={async (id) => {
+                                        await removeTrip(id);
+                                        useToastStore.getState().showToast('Trip deleted', 'success');
+                                    }} onTap={(id) => navigate(`/trips/${id}`)} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {!isSearching && trips.length > 0 && (
-                    <p className="text-center text-xs text-text-muted mt-6">← Swipe left to delete</p>
+                    <div className="flex justify-center mt-10 mb-4 opacity-50">
+                        <p className="text-xs font-mono text-text-muted flex items-center gap-2 bg-surface px-4 py-2 rounded-full border border-border">
+                            <span className="tracking-widest capitalize">Swipe left on a card to delete</span>
+                        </p>
+                    </div>
                 )}
             </div>
         </div>

@@ -47,9 +47,12 @@
         color: #F9FAFB !important;
         background-color: #0A0F1E !important;
         background-image:
-            linear-gradient(rgba(245, 158, 11, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(245, 158, 11, 0.03) 1px, transparent 1px);
-        background-size: 40px 40px;
+            radial-gradient(circle at 10% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 40%),
+            radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.05) 0%, transparent 40%),
+            linear-gradient(rgba(245, 158, 11, 0.02) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(245, 158, 11, 0.02) 1px, transparent 1px);
+        background-size: 100vw 100vh, 100vw 100vh, 40px 40px, 40px 40px;
+        background-attachment: fixed;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
@@ -57,7 +60,7 @@
     #root {
         min-height: 100vh;
         min-height: 100dvh;
-        background-color: #0A0F1E;
+        background-color: transparent;
     }
 }
 
@@ -295,6 +298,29 @@ select:focus {
     background: rgba(10, 15, 30, 0.92);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
+}
+
+.glass-panel {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.glass-card {
+    background: linear-gradient(135deg, rgba(17, 24, 39, 0.8) 0%, rgba(10, 15, 30, 0.9) 100%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.95) 100%);
+    border-color: rgba(245, 158, 11, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 /* ── Utility ──────────────────────────────── */

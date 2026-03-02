@@ -14,6 +14,8 @@ import {
     launchTrip,
     searchTrips,
     getHistory,
+    deleteHistoryItem,
+    clearAllHistory,
 } from '../api/client';
 
 const useTripStore = create((set, get) => ({
@@ -143,6 +145,31 @@ const useTripStore = create((set, get) => ({
             // API returns { items: [...] } — extract the array
             const items = Array.isArray(data) ? data : (data?.items || []);
             set({ history: items, loading: false });
+        } catch (err) {
+            get()._setError(err);
+        }
+    },
+
+    /** Remove a specific history item. */
+    removeHistoryItem: async (historyId) => {
+        get()._startLoading();
+        try {
+            await deleteHistoryItem(historyId);
+            set((state) => ({
+                history: state.history.filter((h) => h.id !== historyId),
+                loading: false,
+            }));
+        } catch (err) {
+            get()._setError(err);
+        }
+    },
+
+    /** Clear entire history. */
+    clearHistory: async () => {
+        get()._startLoading();
+        try {
+            await clearAllHistory();
+            set({ history: [], loading: false });
         } catch (err) {
             get()._setError(err);
         }

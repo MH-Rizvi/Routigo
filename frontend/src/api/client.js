@@ -111,6 +111,18 @@ export const getHistory = async () => {
     return data;
 };
 
+/** Delete a single history entry */
+export const deleteHistoryItem = async (historyId) => {
+    const { data } = await api.delete(`/history/${historyId}`);
+    return data;
+};
+
+/** Clear all history entries */
+export const clearAllHistory = async () => {
+    const { data } = await api.delete('/history');
+    return data;
+};
+
 // ─────────────────────────────────────────────
 // Admin / LLMOps
 // ─────────────────────────────────────────────

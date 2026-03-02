@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session  # pyright: ignore[reportMissingImports]
 
 from app import models, schemas
 from app.database import get_db
+from app.services import vector_service
 
 
 router = APIRouter(tags=["history"])
@@ -29,5 +30,28 @@ async def list_history(
     )
 
     return schemas.HistoryListResponse(items=histories)
+
+
+@router.delete("/history/{history_id}")
+async def delete_history_entry(
+    history_id: int,
+    db: Session = Depends(get_db),
+):
+    history_entry = db.query(models.TripHistory).filter(models.TripHistory.id == history_id).first()
+    if history_entry:
+        db.delete(history_entry)
+        db.commit()
+        vector_service.delete_history_entry(f"history_{history_id}")
+    return {"status": "ok"}
+
+
+@router.delete("/history")
+async def clear_all_history(
+    db: Session = Depends(get_db),
+):
+    db.query(models.TripHistory).delete()
+    db.commit()
+    vector_service.clear_history()
+    return {"status": "ok"}
 
 
