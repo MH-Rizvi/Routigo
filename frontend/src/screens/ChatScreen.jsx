@@ -37,7 +37,7 @@ export default function ChatScreen() {
     };
 
     return (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col flex-1 w-full relative">
             <Header
                 rightElement={messages.length > 0 && (
                     <button onClick={resetChat} className="min-h-touch px-3 text-sm text-accent font-bold tracking-wide hover:opacity-80 transition-opacity drop-shadow-md">
@@ -47,22 +47,32 @@ export default function ChatScreen() {
             />
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-4 pb-24">
+            <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-4 pb-4">
                 {messages.length === 0 && !loading && (
-                    <div className="flex flex-col items-center justify-center h-full text-center animate-fade-up">
-                        <div className="w-16 h-16 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mb-5">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+                    <div className="flex flex-col items-center justify-center h-full text-center animate-fade-up max-w-md mx-auto">
+                        <div className="relative mb-6 group">
+                            <div className="absolute inset-0 bg-accent/30 blur-2xl rounded-full opacity-50 group-hover:opacity-80 transition-opacity duration-700 mix-blend-screen" />
+                            <div className="w-20 h-20 rounded-full bg-surface border border-border flex items-center justify-center relative z-10 shadow-xl">
+                                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+                            </div>
                         </div>
-                        <h2 className="text-[26px] font-bold text-white mb-2">Where to?</h2>
-                        <p className="text-[#6B7280] mb-6 max-w-xs text-[14px]">Describe your route in plain language</p>
-                        <div className="grid grid-cols-2 gap-[10px] max-w-sm w-full px-2">
-                            {PROMPTS.map((p) => (
+                        <h2 className="text-[28px] font-bold text-white mb-2 tracking-tight">Where to next?</h2>
+                        <p className="text-text-secondary mb-8 text-[15px]">Describe your route in plain language</p>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+                            {PROMPTS.map((p, i) => (
                                 <button
                                     key={p}
                                     onClick={() => sendMessage(p)}
-                                    className="bg-[#111827] border border-[#F59E0B] rounded-[20px] px-4 py-2.5 text-[#F59E0B] text-[14px] text-center transition-colors active:bg-[#F59E0B]/10"
+                                    className="bg-surface/50 hover:bg-surface border border-border hover:border-accent/50 rounded-[16px] p-4 text-left transition-all duration-300 group flex flex-col gap-2 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(245,158,11,0.08)]"
+                                    style={{ animationDelay: `${i * 100}ms` }}
                                 >
-                                    {p}
+                                    <span className="text-accent max-w-min p-1.5 rounded-lg bg-accent/10 group-hover:bg-accent/20 transition-colors">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                    </span>
+                                    <span className="text-text-primary text-[14px] font-medium leading-tight">
+                                        {p}
+                                    </span>
                                 </button>
                             ))}
                         </div>

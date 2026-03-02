@@ -76,9 +76,9 @@ function AppShell() {
     const hideTabBar = location.pathname.startsWith('/preview');
 
     return (
-        <div className="flex flex-col min-h-screen">
+        <div className="flex flex-col min-h-screen relative">
             <Toast />
-            <main className={`flex-1 overflow-y-auto ${hideTabBar ? '' : 'pb-20'}`}>
+            <main className={`flex-1 flex flex-col overflow-y-auto ${hideTabBar ? '' : 'pb-[72px]'}`}>
                 <Routes>
                     <Route path="/" element={<HomeScreen />} />
                     <Route path="/chat" element={<ChatScreen />} />

@@ -25,7 +25,10 @@ function TripRow({ trip, onDelete, onTap }) {
 
     return (
         <div className="relative overflow-hidden rounded-2xl">
-            <div className="absolute inset-0 bg-danger flex items-center justify-end pr-6 rounded-2xl">
+            <div
+                className="absolute inset-0 bg-danger flex items-center justify-end pr-6 rounded-2xl transition-opacity duration-200"
+                style={{ opacity: offset > 0 ? 1 : 0 }}
+            >
                 <span className="text-white font-bold text-sm">Delete</span>
             </div>
             <div
@@ -38,7 +41,7 @@ function TripRow({ trip, onDelete, onTap }) {
                 role="button"
                 tabIndex={0}
             >
-                <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-accent to-orange-600 rounded-l-xl opacity-80" />
+                <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-amber-400 to-amber-600 rounded-l-xl opacity-80" />
                 <div className="flex items-center gap-3 min-w-0 flex-1 pl-2">
                     <div className="min-w-0">
                         <h3 className="text-[17px] font-bold text-white truncate group-hover:text-accent transition-colors">{trip.name}</h3>

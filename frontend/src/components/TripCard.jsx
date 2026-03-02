@@ -39,7 +39,7 @@ export default function TripCard({ trip }) {
 
     return (
         <div
-            className="card card-accent p-4 flex items-center gap-4 cursor-pointer"
+            className="card card-accent p-4 flex items-center gap-4 cursor-pointer hover:border-accent/50 transition-all group"
             onClick={() => navigate(`/trips/${trip.id}`)}
             role="button"
             tabIndex={0}
