@@ -344,3 +344,11 @@ select:focus {
     background: var(--accent);
     border-radius: 2px;
 }
+
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}

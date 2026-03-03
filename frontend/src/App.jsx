@@ -2,7 +2,7 @@
  * App.jsx — Root with dark enterprise tab bar.
  */
 import { useState, useEffect, useRef } from 'react';
-import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, NavLink, Navigate, useLocation } from 'react-router-dom';
 import HomeScreen from './screens/HomeScreen';
 import ChatScreen from './screens/ChatScreen';
 import PreviewScreen from './screens/PreviewScreen';
@@ -11,6 +11,7 @@ import TripDetailScreen from './screens/TripDetailScreen';
 import HistoryScreen from './screens/HistoryScreen';
 import StatsScreen from './screens/StatsScreen';
 import AuthScreen from './screens/AuthScreen';
+import LandingPage from './screens/LandingPage';
 import Toast from './components/Toast';
 import ProtectedRoute from './components/ProtectedRoute';
 import LogoutModal from './components/LogoutModal';
@@ -19,7 +20,7 @@ import { logout } from './api/client';
 
 const TABS = [
     {
-        path: '/', label: 'Home', icon: (
+        path: '/home', label: 'Home', icon: (
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
         )
     },
@@ -56,7 +57,7 @@ function BottomTabBar() {
                         <NavLink
                             key={tab.path}
                             to={tab.path}
-                            end={tab.path === '/'}
+                            end={tab.path === '/home'}
                             className={({ isActive }) =>
                                 `relative flex flex-col items-center justify-center min-w-touch min-h-touch px-2 py-1 transition-colors duration-150 ${isActive ? 'text-accent' : 'text-text-muted hover:text-text-secondary'
                                 }`
@@ -94,7 +95,7 @@ function BottomTabBar() {
 
 function AppShell() {
     const location = useLocation();
-    const hideTabBar = location.pathname.startsWith('/preview') || location.pathname === '/login';
+    const hideTabBar = location.pathname.startsWith('/preview') || location.pathname === '/login' || location.pathname === '/';
     const hydrate = useAuthStore((state) => state.hydrate);
 
     useEffect(() => {
@@ -107,9 +108,10 @@ function AppShell() {
             <main className={`flex-1 flex flex-col overflow-y-auto ${hideTabBar ? '' : 'pb-safe-tabbar'}`}>
                 <Routes>
                     <Route path="/login" element={<AuthScreen />} />
+                    <Route path="/" element={<LandingPage />} />
 
                     <Route element={<ProtectedRoute />}>
-                        <Route path="/" element={<HomeScreen />} />
+                        <Route path="/home" element={<HomeScreen />} />
                         <Route path="/chat" element={<ChatScreen />} />
                         <Route path="/preview" element={<PreviewScreen />} />
                         <Route path="/trips" element={<TripsScreen />} />

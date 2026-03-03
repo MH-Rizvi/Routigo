@@ -7,7 +7,7 @@ export default function Header({ rightElement }) {
         <div className="h-[76px] sm:h-[96px] flex items-center justify-between px-4 sm:px-5 border-b border-white/5 shrink-0 bg-[#0A0F1E]/60 backdrop-blur-2xl sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
             <div
                 className="flex items-center gap-0 cursor-pointer group sm:-ml-2"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/home')}
             >
                 <div className="relative flex items-center justify-center -mr-[8px] sm:-mr-[16px]">
                     <div className="absolute inset-0 bg-accent/30 blur-xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-500 mix-blend-screen" />

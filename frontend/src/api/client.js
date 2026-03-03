@@ -54,7 +54,9 @@ api.interceptors.response.use(
             // If the failed request WAS the refresh endpoint itself, we are completely logged out
             if (originalRequest.url.includes('/auth/refresh')) {
                 clearTokens();
-                if (window.location.pathname !== '/login') {
+                // Only redirect if on a protected page — never on / or /login
+                const path = window.location.pathname;
+                if (path !== '/login' && path !== '/') {
                     window.location.href = '/login';
                 }
                 return Promise.reject(error);
@@ -82,10 +84,11 @@ api.interceptors.response.use(
                 isRefreshing = false;
                 return api(originalRequest);
             } catch (refreshError) {
-                // If refresh fails, clear tokens and aggressively redirect to login
+                // If refresh fails, clear tokens but only redirect on protected pages
                 isRefreshing = false;
                 clearTokens();
-                if (window.location.pathname !== '/login') {
+                const path = window.location.pathname;
+                if (path !== '/login' && path !== '/') {
                     window.location.href = '/login';
                 }
                 return Promise.reject(refreshError);
@@ -110,6 +113,20 @@ export const sendAgentMessage = async (message, conversationHistory = [], sessio
         message,
         conversation_history: conversationHistory,
         session_id: sessionId,
+    });
+    return data;
+};
+
+/**
+ * Send a message to the public demo agent (no auth required).
+ * @param {string} message
+ * @param {Array}  conversationHistory — [{role, content}, ...]
+ * @returns {Promise<Object>} — same shape as sendAgentMessage + requires_auth flag
+ */
+export const sendDemoMessage = async (message, conversationHistory = []) => {
+    const { data } = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/agent/demo-chat`, {
+        message,
+        conversation_history: conversationHistory,
     });
     return data;
 };

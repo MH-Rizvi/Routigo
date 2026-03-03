@@ -187,6 +187,12 @@ class AgentChatResponse(BaseModel):
     trip_id: Optional[int] = None
     needs_confirmation: bool = False
     agent_steps: Optional[int] = None
+    requires_auth: bool = False
+
+
+class DemoChatRequest(BaseModel):
+    message: str
+    conversation_history: List[ConversationMessage] = []
 
 
 # ----- RAG schemas -----
