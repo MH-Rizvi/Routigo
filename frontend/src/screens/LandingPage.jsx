@@ -104,8 +104,8 @@ function DemoChat({ onRequiresAuth }) {
         <div className="w-full max-w-[680px] mx-auto rounded-3xl border border-white/[0.08] bg-surface/80 backdrop-blur-xl shadow-[0_20px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(245,158,11,0.1)] overflow-hidden flex flex-col transition-shadow duration-500 hover:shadow-[0_20px_80px_rgba(0,0,0,0.6),0_0_60px_rgba(245,158,11,0.2)]" style={{ height: 'min(500px, 60vh)' }}>
             {/* Chat header */}
             <div className="flex items-center gap-3 px-5 py-3.5 border-b border-white/[0.06] bg-white/[0.02]">
-                <div className="w-9 h-9 rounded-full bg-white/[0.05] border border-white/[0.1] flex items-center justify-center p-1.5 shadow-lg shadow-amber-500/10">
-                    <img src="/logo3_nobg.png" alt="AI Agent" className="w-full h-full object-contain" />
+                <div className="w-9 h-9 rounded-full bg-white/[0.05] border border-white/[0.1] flex items-center justify-center overflow-hidden shadow-lg shadow-amber-500/10">
+                    <img src="/logo3_nobg.png" alt="AI Agent" className="w-[140%] h-[140%] max-w-none object-cover rounded-full" />
                 </div>
                 <div>
                     <p className="text-white text-[13px] font-semibold tracking-tight">Routigo AI Agent</p>
@@ -195,8 +195,8 @@ function SignupGateModal({ onClose }) {
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in" onClick={onClose}>
             <div className="bg-surface border border-white/10 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl" onClick={e => e.stopPropagation()}>
-                <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-center mx-auto mb-5 shadow-lg shadow-amber-500/10 p-3">
-                    <img src="/logo3_nobg.png" alt="AI Agent" className="w-full h-full object-contain drop-shadow-[0_0_10px_rgba(245,158,11,0.3)]" />
+                <div className="w-16 h-16 rounded-full bg-white/[0.03] border border-white/[0.08] flex items-center justify-center overflow-hidden mx-auto mb-5 shadow-lg shadow-amber-500/10">
+                    <img src="/logo3_nobg.png" alt="AI Agent" className="w-[140%] h-[140%] max-w-none object-cover rounded-full drop-shadow-[0_0_10px_rgba(245,158,11,0.3)]" />
                 </div>
                 <h3 className="text-white text-xl font-bold mb-2">Create a free account</h3>
                 <p className="text-white/50 text-sm mb-6 leading-relaxed">Save your routes, launch in Google Maps, and get unlimited AI access.</p>
@@ -263,6 +263,46 @@ function FAQItem({ q, a }) {
 
 
 /* ──────────────────────────────────────────────
+   SCROLL ANIMATION WRAPPER
+   ────────────────────────────────────────────── */
+function RevealOnScroll({ children, className = '', activeClass = 'reveal-fade-up', delay = 0 }) {
+    const [isVisible, setIsVisible] = useState(false);
+    const ref = useRef(null);
+
+    useEffect(() => {
+        const currentRef = ref.current;
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                    observer.unobserve(currentRef);
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        if (currentRef) {
+            observer.observe(currentRef);
+        }
+
+        return () => {
+            if (currentRef) observer.unobserve(currentRef);
+        };
+    }, []);
+
+    return (
+        <div
+            ref={ref}
+            className={`reveal-base ${activeClass} ${isVisible ? 'is-revealed' : ''} ${className}`}
+            style={{ transitionDelay: `${delay}ms` }}
+        >
+            {children}
+        </div>
+    );
+}
+
+
+/* ──────────────────────────────────────────────
    MAIN LANDING PAGE
    ────────────────────────────────────────────── */
 export default function LandingPage() {
@@ -299,8 +339,10 @@ export default function LandingPage() {
             {/* ═══ NAVBAR ═══ */}
             <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-base/90 backdrop-blur-xl border-b border-white/[0.06] shadow-lg' : ''}`}>
                 <div className="max-w-6xl mx-auto px-5 sm:px-8 h-20 flex items-center justify-between">
-                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                        <img src="/logo3_nobg.png" alt="Routigo" className="w-12 h-12 object-contain drop-shadow-sm" />
+                    <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                        <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center border border-white/[0.1] shadow-lg shadow-amber-500/20 bg-white/[0.03] group-hover:scale-105 group-hover:rotate-6 transition-transform duration-500">
+                            <img src="/logo3_nobg.png" alt="Routigo" className="w-[140%] h-[140%] max-w-none object-cover rounded-full" />
+                        </div>
                         <span className="text-accent font-bold text-2xl tracking-tight">Routigo</span>
                     </div>
                     <div className="flex items-center gap-3">
@@ -316,48 +358,69 @@ export default function LandingPage() {
 
 
             {/* ═══ HERO ═══ */}
-            <section className="relative pt-28 lg:pt-40 pb-20 lg:pb-32 px-5 sm:px-8">
+            <section className="relative pt-28 lg:pt-40 pb-10 lg:pb-16 px-5 sm:px-8 bg-[#0a0f1a] overflow-hidden">
                 {/* Background effects */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    {/* Road SVG Background */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[10%] w-[800px] h-[800px] opacity-30 mix-blend-screen pointer-events-none" style={{ perspective: '1000px' }}>
+                        <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ transform: 'rotateX(60deg)' }}>
+                            <path d="M 40 0 L 0 100 L 100 100 L 60 0 Z" fill="#050810" />
+                            <path d="M 50 0 L 50 100" stroke="#F59E0B" strokeWidth="0.5" strokeDasharray="4 4" fill="none" opacity="0.6" />
+                            <path d="M 40 0 L 0 100" stroke="#111827" strokeWidth="1" fill="none" />
+                            <path d="M 60 0 L 100 100" stroke="#111827" strokeWidth="1" fill="none" />
+                        </svg>
+                        {/* Fake glowing horizon */}
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-1 bg-amber-500/50 shadow-[0_0_50px_20px_rgba(245,158,11,0.2)] rounded-full blur-md" />
+                    </div>
+
                     <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-amber-500/[0.06] rounded-full blur-[120px]" />
                     <div className="absolute top-40 left-1/4 w-[400px] h-[400px] bg-amber-600/[0.04] rounded-full blur-[100px]" />
                     <div className="absolute top-60 right-1/4 w-[300px] h-[300px] bg-amber-400/[0.03] rounded-full blur-[80px]" />
                 </div>
 
-                <div className="relative max-w-[1200px] mx-auto">
+                <div className="relative max-w-[1200px] mx-auto z-10">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-amber-500/5 rounded-full blur-[100px] -z-10" />
                     {/* Badge */}
-                    <div className="flex justify-center mb-6 animate-fade-up">
+                    <RevealOnScroll className="flex justify-center mb-6">
                         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[12px] font-medium">
                             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
                             Powered by LangChain ReAct Agent
                         </div>
-                    </div>
+                    </RevealOnScroll>
 
                     {/* Headline */}
-                    <h1 className="text-center text-[clamp(32px,6vw,64px)] font-extrabold leading-[1.08] tracking-tight mb-5 animate-fade-up" style={{ animationDelay: '80ms' }}>
-                        <span className="bg-gradient-to-b from-white via-white to-white/50 bg-clip-text text-transparent">Describe your route.</span>
-                        <br />
-                        <span className="bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 bg-clip-text text-transparent">Drive in seconds.</span>
-                    </h1>
+                    <RevealOnScroll delay={100} className="mb-5">
+                        <h1 className="text-center text-[clamp(32px,6vw,64px)] font-extrabold leading-[1.08] tracking-tight">
+                            <span className="bg-gradient-to-b from-white via-white to-white/50 bg-clip-text text-transparent">Describe your route.</span>
+                            <br />
+                            <span className="bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 bg-clip-text text-transparent">Drive in seconds.</span>
+                        </h1>
+                    </RevealOnScroll>
 
-                    <p className="text-center text-white/45 text-[clamp(15px,2vw,18px)] max-w-lg mx-auto mb-10 leading-relaxed animate-fade-up" style={{ animationDelay: '160ms' }}>
-                        Tell the AI where you need to go in plain English.<br className="hidden sm:block" /> It geocodes every stop and launches Google Maps — instantly.
-                    </p>
+                    <RevealOnScroll delay={200} className="mb-10">
+                        <p className="text-center text-white/45 text-[clamp(15px,2vw,18px)] max-w-lg mx-auto leading-relaxed">
+                            Tell the AI where you need to go in plain English.<br className="hidden sm:block" /> It geocodes every stop and launches Google Maps — instantly.
+                        </p>
+                    </RevealOnScroll>
 
                     {/* Demo Chat Widget */}
-                    <div className="animate-fade-up" style={{ animationDelay: '240ms' }}>
+                    <RevealOnScroll delay={300}>
                         <DemoChat onRequiresAuth={() => setShowGateModal(true)} />
-                    </div>
+                    </RevealOnScroll>
                 </div>
             </section>
 
 
             {/* ═══ HOW IT WORKS ═══ */}
-            <section className="py-20 lg:py-32 px-5 sm:px-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-500/[0.02] to-transparent pointer-events-none" />
+            <section className="py-20 lg:py-32 px-5 sm:px-8 relative bg-[#0d1220] transition-colors duration-1000">
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0a0f1a] via-transparent to-[#0d1020] pointer-events-none" />
                 <div className="max-w-[1200px] mx-auto relative">
-                    <h2 className="text-center text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">How it works</h2>
-                    <p className="text-center text-white/40 text-base sm:text-lg mb-16 lg:mb-24">Three steps to your next route.</p>
+                    <RevealOnScroll>
+                        <h2 className="text-center text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">How it works</h2>
+                    </RevealOnScroll>
+                    <RevealOnScroll delay={100}>
+                        <p className="text-center text-white/40 text-base sm:text-lg mb-16 lg:mb-24">Three steps to your next route.</p>
+                    </RevealOnScroll>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 relative">
                         {/* Connecting Line (Desktop) */}
@@ -367,18 +430,20 @@ export default function LandingPage() {
                             { step: '01', icon: <IconChat />, title: 'Describe your route', desc: 'Type or speak where you need to go — no addresses required.' },
                             { step: '02', icon: <IconMapPin />, title: 'AI resolves stops', desc: 'The agent geocodes each stop and checks your semantic memory.' },
                             { step: '03', icon: <IconNavigation />, title: 'Launch navigation', desc: 'One tap to open Google Maps with every stop pre-loaded.' },
-                        ].map((item) => (
-                            <div key={item.step} className="group relative text-center p-8 lg:p-10 rounded-3xl bg-base border border-white/[0.06] hover:border-amber-500/20 hover:bg-white/[0.02] transition-all duration-300">
-                                <div className="w-16 h-16 rounded-2xl bg-base border border-white/[0.08] flex items-center justify-center mx-auto mb-6 relative z-10 group-hover:border-amber-500/30 group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(245,158,11,0.2)] transition-all duration-300">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent rounded-2xl" />
-                                    <div className="text-amber-400 relative z-10">{item.icon}</div>
+                        ].map((item, i) => (
+                            <RevealOnScroll key={item.step} delay={i * 150} activeClass="reveal-slide-bottom">
+                                <div className="group relative text-center p-8 lg:p-10 rounded-3xl bg-base border border-white/[0.06] hover:border-amber-500/20 hover:bg-white/[0.02] transition-all duration-300">
+                                    <div className="w-16 h-16 rounded-2xl bg-base border border-white/[0.08] flex items-center justify-center mx-auto mb-6 relative z-10 group-hover:border-amber-500/30 group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(245,158,11,0.2)] transition-all duration-300">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent rounded-2xl" />
+                                        <div className="text-amber-400 relative z-10">{item.icon}</div>
+                                    </div>
+                                    <div className="inline-block px-3 py-1 mb-4 rounded-full bg-amber-500/10 text-amber-400 text-[12px] font-bold tracking-widest">
+                                        STEP {item.step}
+                                    </div>
+                                    <h3 className="text-white font-semibold text-[18px] lg:text-[20px] mb-3">{item.title}</h3>
+                                    <p className="text-white/40 text-[14px] lg:text-[15px] leading-relaxed max-w-[280px] mx-auto">{item.desc}</p>
                                 </div>
-                                <div className="inline-block px-3 py-1 mb-4 rounded-full bg-amber-500/10 text-amber-400 text-[12px] font-bold tracking-widest">
-                                    STEP {item.step}
-                                </div>
-                                <h3 className="text-white font-semibold text-[18px] lg:text-[20px] mb-3">{item.title}</h3>
-                                <p className="text-white/40 text-[14px] lg:text-[15px] leading-relaxed max-w-[280px] mx-auto">{item.desc}</p>
-                            </div>
+                            </RevealOnScroll>
                         ))}
                     </div>
                 </div>
@@ -386,31 +451,37 @@ export default function LandingPage() {
 
 
             {/* ═══ FEATURES ═══ */}
-            <section className="py-20 lg:py-32 px-5 sm:px-8 relative">
-                <div className="max-w-[1200px] mx-auto animate-fade-in" style={{ animationTimeline: 'view()', animationRange: 'cover 0% cover 30%' }}>
-                    <h2 className="text-center text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">Built for real-world drivers</h2>
-                    <p className="text-center text-white/40 text-base sm:text-lg mb-16 lg:mb-24">Enterprise-grade AI. Dead-simple interface.</p>
+            <section className="py-20 lg:py-32 px-5 sm:px-8 relative bg-[#0d1020] transition-colors duration-1000">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0a0f1a] pointer-events-none" />
+                <div className="max-w-[1200px] mx-auto relative">
+                    <RevealOnScroll>
+                        <h2 className="text-center text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">Built for real-world drivers</h2>
+                    </RevealOnScroll>
+                    <RevealOnScroll delay={100}>
+                        <p className="text-center text-white/40 text-base sm:text-lg mb-16 lg:mb-24">Enterprise-grade AI. Dead-simple interface.</p>
+                    </RevealOnScroll>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                         {FEATURES.map((f, i) => (
-                            <div key={f.title} className="group p-8 lg:p-10 rounded-3xl bg-white/[0.02] border border-white/[0.06] hover:-translate-y-2 hover:border-amber-500/30 hover:shadow-[0_15px_40px_rgba(245,158,11,0.1)] transition-all duration-300 flex flex-col h-full animate-fade-up" style={{ animationDelay: `${i * 100}ms` }}>
-                                <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-400 mb-6 group-hover:scale-110 group-hover:bg-amber-500/20 transition-all duration-300">
-                                    {f.icon}
+                            <RevealOnScroll key={f.title} delay={i * 100}>
+                                <div className="group p-8 lg:p-10 rounded-3xl bg-white/[0.02] border border-white/[0.06] hover:-translate-y-2 hover:border-amber-500/30 hover:shadow-[0_15px_40px_rgba(245,158,11,0.1)] transition-all duration-300 flex flex-col h-full">
+                                    <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-400 mb-6 group-hover:scale-110 group-hover:bg-amber-500/20 transition-all duration-300">
+                                        {f.icon}
+                                    </div>
+                                    <h3 className="text-white font-bold text-[18px] lg:text-[20px] mb-3">{f.title}</h3>
+                                    <p className="text-white/40 text-[15px] leading-relaxed flex-grow">{f.desc}</p>
                                 </div>
-                                <h3 className="text-white font-bold text-[18px] lg:text-[20px] mb-3">{f.title}</h3>
-                                <p className="text-white/40 text-[15px] leading-relaxed flex-grow">{f.desc}</p>
-                            </div>
+                            </RevealOnScroll>
                         ))}
                     </div>
                 </div>
             </section>
 
             {/* ═══ MOTIVATION / BACKGROUND ═══ */}
-            <section className="py-20 lg:py-32 px-5 sm:px-8 relative bg-white/[0.01] border-y border-white/[0.06]">
-                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/[0.02] to-transparent pointer-events-none" />
-                <div className="max-w-[1000px] mx-auto relative animate-fade-up">
+            <section className="py-20 lg:py-32 px-5 sm:px-8 relative bg-[#0a0f1a] border-y border-white/[0.06] overflow-hidden">
+                <div className="max-w-[1000px] mx-auto relative">
                     <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
-                        <div className="flex-1 text-left">
+                        <RevealOnScroll activeClass="reveal-slide-left" className="flex-1 text-left">
                             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[12px] font-medium mb-6">
                                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                                 Our Story
@@ -422,8 +493,8 @@ export default function LandingPage() {
                             <p className="text-white/60 text-base lg:text-lg leading-relaxed">
                                 So we decided to build an AI-powered router that requires <strong className="text-amber-500 font-bold">zero typing</strong>. We wanted an interface where you just tell the system your plan in natural language, and an intelligent agent handles the geocoding, sorting, and map generation automatically.
                             </p>
-                        </div>
-                        <div className="flex-1 w-full relative">
+                        </RevealOnScroll>
+                        <RevealOnScroll activeClass="reveal-slide-right" className="flex-1 w-full relative">
                             <div className="aspect-square max-w-[400px] mx-auto relative rounded-[40px] border border-white/[0.08] bg-surface/80 backdrop-blur-xl shadow-2xl overflow-hidden p-8 flex flex-col justify-between hidden lg:flex">
                                 <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent pointer-events-none" />
                                 <div className="text-amber-500 mb-6">
@@ -432,19 +503,20 @@ export default function LandingPage() {
                                 <h3 className="text-2xl font-bold text-white leading-tight mb-4">Less screen time.<br />More drive time.</h3>
                                 <div className="text-xl text-white/40 font-mono">print("Let's go.")</div>
                             </div>
-                        </div>
+                        </RevealOnScroll>
                     </div>
                 </div>
             </section>
 
 
             {/* ═══ SOCIAL PROOF / STATS ═══ */}
-            <section className="py-20 lg:py-32 px-5 sm:px-8">
-                <div className="max-w-[1200px] mx-auto">
+            <section className="py-20 lg:py-32 px-5 sm:px-8 relative bg-[rgba(245,158,11,0.03)] transition-colors duration-1000">
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0a0f1a] to-transparent pointer-events-none" />
+                <div className="max-w-[1200px] mx-auto relative">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
 
                         {/* Card 1: AI Tools */}
-                        <div className="group relative text-center p-10 lg:p-14 rounded-3xl bg-white/[0.02] border border-white/[0.06] hover:border-amber-500/25 hover:shadow-[0_0_40px_rgba(245,158,11,0.08)] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col items-center justify-center">
+                        <RevealOnScroll className="group relative text-center p-10 lg:p-14 rounded-3xl bg-white/[0.02] border border-white/[0.06] hover:border-amber-500/25 hover:shadow-[0_0_40px_rgba(245,158,11,0.08)] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col items-center justify-center max-w-full" activeClass="reveal-scale-up">
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
                             <div className="text-amber-400/60 mb-6 flex justify-center group-hover:text-amber-400 group-hover:scale-110 transition-all duration-300">
                                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg>
@@ -452,10 +524,10 @@ export default function LandingPage() {
                             <p className="text-[clamp(48px,6vw,72px)] font-extrabold bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600/60 bg-clip-text text-transparent leading-none mb-4 group-hover:drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all">5</p>
                             <p className="text-white text-[16px] lg:text-[18px] font-bold mb-2">AI Tools</p>
                             <p className="text-white/40 text-[14px] lg:text-[15px] leading-relaxed max-w-[250px]">Geocoding, semantic search, trip recall, history retrieval, RAG</p>
-                        </div>
+                        </RevealOnScroll>
 
                         {/* Card 2: Response Time */}
-                        <div className="group relative text-center p-10 lg:p-14 rounded-3xl bg-white/[0.02] border border-white/[0.06] hover:border-amber-500/25 hover:shadow-[0_0_40px_rgba(245,158,11,0.08)] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col items-center justify-center">
+                        <RevealOnScroll delay={100} className="group relative text-center p-10 lg:p-14 rounded-3xl bg-white/[0.02] border border-white/[0.06] hover:border-amber-500/25 hover:shadow-[0_0_40px_rgba(245,158,11,0.08)] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col items-center justify-center max-w-full" activeClass="reveal-scale-up">
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
                             <div className="text-amber-400/60 mb-6 flex justify-center group-hover:text-amber-400 group-hover:scale-110 transition-all duration-300">
                                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
@@ -463,10 +535,10 @@ export default function LandingPage() {
                             <p className="text-[clamp(48px,6vw,72px)] font-extrabold bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600/60 bg-clip-text text-transparent leading-none mb-4 group-hover:drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all">&lt; 8s</p>
                             <p className="text-white text-[16px] lg:text-[18px] font-bold mb-2">Response Time</p>
                             <p className="text-white/40 text-[14px] lg:text-[15px] leading-relaxed max-w-[250px]">Average agent reasoning chain completion</p>
-                        </div>
+                        </RevealOnScroll>
 
                         {/* Card 3: Time to first route */}
-                        <div className="group relative text-center p-10 lg:p-14 rounded-3xl bg-white/[0.02] border border-white/[0.06] hover:border-amber-500/25 hover:shadow-[0_0_40px_rgba(245,158,11,0.08)] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col items-center justify-center">
+                        <RevealOnScroll delay={200} className="group relative text-center p-10 lg:p-14 rounded-3xl bg-white/[0.02] border border-white/[0.06] hover:border-amber-500/25 hover:shadow-[0_0_40px_rgba(245,158,11,0.08)] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col items-center justify-center max-w-full" activeClass="reveal-scale-up">
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
                             <div className="text-amber-400/60 mb-6 flex justify-center group-hover:text-amber-400 group-hover:scale-110 transition-all duration-300">
                                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
@@ -474,7 +546,7 @@ export default function LandingPage() {
                             <p className="text-[clamp(48px,6vw,72px)] font-extrabold bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600/60 bg-clip-text text-transparent leading-none mb-4 group-hover:drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all">2 min</p>
                             <p className="text-white text-[16px] lg:text-[18px] font-bold mb-2">To Plan Your First Route</p>
                             <p className="text-white/40 text-[14px] lg:text-[15px] leading-relaxed max-w-[250px]">From sign up to navigating your first route in under 2 minutes</p>
-                        </div>
+                        </RevealOnScroll>
 
                     </div>
                 </div>
@@ -482,24 +554,29 @@ export default function LandingPage() {
 
 
             {/* ═══ FAQ ═══ */}
-            <section className="py-20 lg:py-32 px-5 sm:px-8">
-                <div className="max-w-[1200px] mx-auto">
-                    <h2 className="text-center text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight animate-fade-up">Questions?</h2>
-                    <p className="text-center text-white/40 text-base sm:text-lg mb-16 lg:mb-24 animate-fade-up">Everything you need to know.</p>
+            <section className="py-20 lg:py-32 px-5 sm:px-8 relative bg-[#0e121d] transition-colors duration-1000">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0a0e16] pointer-events-none" />
+                <div className="max-w-[1200px] mx-auto relative">
+                    <RevealOnScroll>
+                        <h2 className="text-center text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">Questions?</h2>
+                    </RevealOnScroll>
+                    <RevealOnScroll delay={100}>
+                        <p className="text-center text-white/40 text-base sm:text-lg mb-16 lg:mb-24">Everything you need to know.</p>
+                    </RevealOnScroll>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 items-start">
                         <div className="flex flex-col lg:gap-8">
                             {FAQ.slice(0, 3).map((item, i) => (
-                                <div key={item.q} className="animate-fade-up" style={{ animationDelay: `${i * 100}ms` }}>
+                                <RevealOnScroll key={item.q} delay={i * 100} activeClass="reveal-slide-bottom">
                                     <FAQItem q={item.q} a={item.a} />
-                                </div>
+                                </RevealOnScroll>
                             ))}
                         </div>
                         <div className="flex flex-col lg:gap-8">
                             {FAQ.slice(3, 5).map((item, i) => (
-                                <div key={item.q} className="animate-fade-up" style={{ animationDelay: `${(i + 3) * 100}ms` }}>
+                                <RevealOnScroll key={item.q} delay={(i + 1) * 100} activeClass="reveal-slide-bottom">
                                     <FAQItem q={item.q} a={item.a} />
-                                </div>
+                                </RevealOnScroll>
                             ))}
                         </div>
                     </div>
@@ -508,29 +585,33 @@ export default function LandingPage() {
 
 
             {/* ═══ CTA BAND ═══ */}
-            <section className="py-20 px-5 sm:px-8 relative">
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-500/[0.03] to-transparent pointer-events-none" />
+            <section className="py-20 px-5 sm:px-8 relative bg-[#0c1018] border-t border-white/[0.04]">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-500/[0.05] to-transparent pointer-events-none" />
                 <div className="max-w-xl mx-auto text-center relative">
-                    <h2 className="text-2xl sm:text-3xl font-bold mb-4">Ready to try it?</h2>
-                    <p className="text-white/40 text-sm mb-8">Free forever. No credit card. Set up in 30 seconds.</p>
-                    <button
-                        onClick={() => navigate('/login')}
-                        className="px-8 py-4 rounded-2xl bg-accent text-base font-bold text-[16px] hover:brightness-110 transition-all active:scale-95 shadow-xl shadow-amber-500/25"
-                    >
-                        Get Started Free →
-                    </button>
+                    <RevealOnScroll>
+                        <h2 className="text-2xl sm:text-3xl font-bold mb-4">Ready to try it?</h2>
+                        <p className="text-white/40 text-sm mb-8">Free forever. No credit card. Set up in 30 seconds.</p>
+                        <button
+                            onClick={() => navigate('/login')}
+                            className="px-8 py-4 rounded-2xl bg-accent text-base font-bold text-[16px] hover:brightness-110 transition-all active:scale-95 shadow-[0_0_30px_rgba(245,158,11,0.4)]"
+                        >
+                            Get Started Free →
+                        </button>
+                    </RevealOnScroll>
                 </div>
             </section>
 
 
             {/* ═══ FOOTER ═══ */}
-            <footer className="border-t border-white/[0.06] py-12 px-5 sm:px-8">
+            <footer className="border-t border-white/[0.06] py-12 px-5 sm:px-8 bg-[#060a10]">
                 <div className="max-w-5xl mx-auto">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 mb-10">
                         {/* Brand */}
                         <div>
-                            <div className="flex items-center gap-3 mb-4">
-                                <img src="/logo3_nobg.png" alt="Routigo" className="w-12 h-12 object-contain" />
+                            <div className="flex items-center gap-3 mb-4 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                                <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center border border-white/[0.1] shadow-[0_0_15px_rgba(245,158,11,0.15)] bg-white/[0.03] group-hover:scale-105 transition-transform duration-500">
+                                    <img src="/logo3_nobg.png" alt="Routigo" className="w-[140%] h-[140%] max-w-none object-cover rounded-full" />
+                                </div>
                                 <span className="text-accent font-bold text-2xl">Routigo</span>
                             </div>
                             <p className="text-white/30 text-[13px] leading-relaxed">AI-powered routing for drivers.<br />Describe your route. Drive in seconds.</p>

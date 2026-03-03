@@ -111,7 +111,9 @@ export default function AuthScreen() {
 
                 <div className="relative z-10 max-w-md">
                     <div className="flex items-center gap-4 mb-8">
-                        <img src="/logo3_nobg.png" alt="Routigo" className="w-20 h-20 object-contain drop-shadow-md" />
+                        <div className="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center border border-white/[0.1] shadow-lg shadow-amber-500/20 bg-white/[0.03]">
+                            <img src="/logo3_nobg.png" alt="Routigo" className="w-[140%] h-[140%] max-w-none object-cover rounded-full" />
+                        </div>
                         <span className="text-accent font-extrabold text-[40px] tracking-tight">Routigo</span>
                     </div>
                     <h2 className="text-[clamp(32px,4vw,48px)] font-bold leading-tight mb-6">
@@ -138,7 +140,9 @@ export default function AuthScreen() {
                 {/* Mobile branding */}
                 <div className="md:hidden flex flex-col items-center mb-10 mt-14 relative z-10 pb-4">
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-                    <img src="/logo3_nobg.png" alt="Routigo Logo" className="w-24 h-24 object-contain mb-4 drop-shadow-[0_0_15px_rgba(245,158,11,0.2)]" />
+                    <div className="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center border border-white/[0.08] shadow-[0_0_20px_rgba(245,158,11,0.2)] bg-white/[0.03] mb-4">
+                        <img src="/logo3_nobg.png" alt="Routigo Logo" className="w-[150%] h-[150%] max-w-none object-cover rounded-full" />
+                    </div>
                     <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Routigo</h1>
                 </div>
 

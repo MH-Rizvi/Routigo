@@ -9,14 +9,15 @@ export default function Header({ rightElement }) {
                 className="flex items-center gap-0 cursor-pointer group sm:-ml-2"
                 onClick={() => navigate('/home')}
             >
-                <div className="relative flex items-center justify-center -mr-[8px] sm:-mr-[16px]">
+                <div className="relative flex items-center justify-center">
                     <div className="absolute inset-0 bg-accent/30 blur-xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-500 mix-blend-screen" />
-                    <img
-                        src="/logo2_nobg.png"
-                        alt="Routigo Icon"
-                        className="w-[84px] h-[84px] sm:w-[120px] sm:h-[120px] object-contain relative z-10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6"
-                        style={{ filter: 'drop-shadow(0 0 16px rgba(245,158,11,0.6))' }}
-                    />
+                    <div className="w-[44px] h-[44px] sm:w-[54px] sm:h-[54px] rounded-full overflow-hidden flex items-center justify-center border border-white/10 shadow-[0_0_15px_rgba(245,158,11,0.3)] bg-white/[0.03] relative z-10 transition-transform duration-500 group-hover:scale-105 group-hover:rotate-6 mx-2 sm:mx-3">
+                        <img
+                            src="/logo3_nobg.png"
+                            alt="Routigo Icon"
+                            className="w-[140%] h-[140%] max-w-none object-cover rounded-full"
+                        />
+                    </div>
                 </div>
                 <div className="flex flex-col justify-center translate-y-[1px]">
                     <div style={{ fontFamily: "'DM Sans', sans-serif" }} className="text-[26px] sm:text-[32px] leading-none flex items-baseline tracking-tight">
