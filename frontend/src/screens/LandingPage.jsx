@@ -240,17 +240,21 @@ function FAQItem({ q, a }) {
 
             {/* Desktop: Flash Card */}
             <div
-                className="hidden lg:block relative w-full h-48 cursor-pointer group perspective-1000"
+                className={`hidden lg:block relative w-full h-56 cursor-pointer perspective-1000 ${!open ? 'group' : ''}`}
                 onClick={() => setOpen(!open)}
             >
-                <div className={`relative w-full h-full transition-transform duration-700 transform-style-3d ${open ? 'rotate-y-180' : ''}`}>
+                <div className={`relative w-full h-full transition-all duration-700 transform-style-3d rounded-3xl ${open ? 'rotate-y-180' : 'group-hover:-translate-y-1 group-hover:shadow-[0_15px_40px_rgba(245,158,11,0.15)]'}`}>
                     {/* Front */}
-                    <div className="absolute inset-0 backface-hidden rounded-3xl border border-white/[0.06] bg-white/[0.02] p-8 flex items-center justify-center hover:border-amber-500/20 hover:bg-white/[0.04] transition-colors shadow-lg">
-                        <span className="text-white text-[18px] font-medium text-center group-hover:text-accent transition-colors">{q}</span>
+                    <div className="absolute inset-0 backface-hidden rounded-3xl border border-white/[0.06] border-t-amber-500/40 bg-white/[0.02] p-8 flex flex-col items-center justify-center group-hover:border-amber-500/30 group-hover:bg-amber-500/[0.03] transition-colors shadow-lg overflow-hidden">
+                        <div className="absolute inset-0 flex items-center justify-center text-[160px] font-black text-amber-500/[0.06] pointer-events-none select-none">
+                            ?
+                        </div>
+                        <span className="text-white text-[20px] font-bold text-center relative z-10 group-hover:text-accent transition-colors leading-tight px-4">{q}</span>
+                        <span className="absolute bottom-5 text-amber-500/40 text-[11px] font-bold tracking-widest uppercase">Tap to reveal</span>
                     </div>
                     {/* Back */}
-                    <div className="absolute inset-0 backface-hidden rounded-3xl border border-amber-500/30 bg-amber-500/10 p-8 flex flex-col items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.15)] rotate-y-180">
-                        <div className="absolute top-4 right-4 text-amber-500/40">
+                    <div className="absolute inset-0 backface-hidden rounded-3xl border border-amber-500/30 bg-[#161008] p-8 flex flex-col items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.05)] rotate-y-180">
+                        <div className="absolute top-5 right-5 text-amber-500">
                             <IconSparkle />
                         </div>
                         <p className="text-white/90 text-[16px] leading-relaxed text-center">{a}</p>
@@ -480,7 +484,7 @@ export default function LandingPage() {
             {/* ═══ MOTIVATION / BACKGROUND ═══ */}
             <section className="py-20 lg:py-32 px-5 sm:px-8 relative bg-[#0a0f1a] border-y border-white/[0.06] overflow-hidden">
                 <div className="max-w-[1000px] mx-auto relative">
-                    <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+                    <div className="flex flex-col lg:flex-row items-center gap-14 lg:gap-20">
                         <RevealOnScroll activeClass="reveal-slide-left" className="flex-1 text-left">
                             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[12px] font-medium mb-6">
                                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
@@ -488,14 +492,14 @@ export default function LandingPage() {
                             </div>
                             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 tracking-tight">Why we built Routigo.</h2>
                             <p className="text-white/60 text-base lg:text-lg leading-relaxed mb-6">
-                                As drivers, we noticed that a lot of our time was wasted tapping small screens, copying addresses between texts, and fixing navigation glitches. Time spent fighting software is time not spent hitting the next stop.
+                                Bus drivers and professional drivers spend minutes every morning doing the same thing — opening Google Maps, searching each stop one by one, and rebuilding the same route they drove yesterday. For a school bus driver with 10 stops, that's wasted time every single day.
                             </p>
                             <p className="text-white/60 text-base lg:text-lg leading-relaxed">
-                                So we decided to build an AI-powered router that requires <strong className="text-amber-500 font-bold">zero typing</strong>. We wanted an interface where you just tell the system your plan in natural language, and an intelligent agent handles the geocoding, sorting, and map generation automatically.
+                                Routigo fixes that. Describe your route <strong className="text-amber-500 font-bold">once in plain English</strong> — or just say 'my usual morning run' — and the AI handles the rest. It remembers your stops, recalls your saved routes, and launches Google Maps with everything pre-loaded. One conversation. Zero rebuilding.
                             </p>
                         </RevealOnScroll>
                         <RevealOnScroll activeClass="reveal-slide-right" className="flex-1 w-full relative">
-                            <div className="aspect-square max-w-[400px] mx-auto relative rounded-[40px] border border-white/[0.08] bg-surface/80 backdrop-blur-xl shadow-2xl overflow-hidden p-8 flex flex-col justify-between hidden lg:flex">
+                            <div className="aspect-square w-full max-w-[400px] mx-auto relative rounded-[40px] border border-white/[0.08] bg-surface/80 backdrop-blur-xl shadow-2xl overflow-hidden p-8 flex flex-col justify-between">
                                 <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent pointer-events-none" />
                                 <div className="text-amber-500 mb-6">
                                     <IconBrain />
@@ -566,18 +570,23 @@ export default function LandingPage() {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 items-start">
                         <div className="flex flex-col lg:gap-8">
-                            {FAQ.slice(0, 3).map((item, i) => (
+                            {FAQ.slice(0, 2).map((item, i) => (
                                 <RevealOnScroll key={item.q} delay={i * 100} activeClass="reveal-slide-bottom">
                                     <FAQItem q={item.q} a={item.a} />
                                 </RevealOnScroll>
                             ))}
                         </div>
                         <div className="flex flex-col lg:gap-8">
-                            {FAQ.slice(3, 5).map((item, i) => (
+                            {FAQ.slice(2, 4).map((item, i) => (
                                 <RevealOnScroll key={item.q} delay={(i + 1) * 100} activeClass="reveal-slide-bottom">
                                     <FAQItem q={item.q} a={item.a} />
                                 </RevealOnScroll>
                             ))}
+                        </div>
+                        <div className="lg:col-span-2 mt-0 lg:mt-0">
+                            <RevealOnScroll delay={300} activeClass="reveal-slide-bottom">
+                                <FAQItem q={FAQ[4].q} a={FAQ[4].a} />
+                            </RevealOnScroll>
                         </div>
                     </div>
                 </div>
