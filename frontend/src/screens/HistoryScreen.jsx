@@ -24,7 +24,7 @@ function formatRagText(text) {
 }
 
 export default function HistoryScreen() {
-    const { history, loading: histLoading, fetchHistory, removeHistoryItem, clearHistory } = useTripStore();
+    const { history, loading: histLoading, fetchHistory, removeHistoryOptimistic, undoRemoveHistory, commitRemoveHistory, clearAllHistoryOptimistic, undoClearAllHistory, commitClearAllHistory } = useTripStore();
     const [ragQuestion, setRagQuestion] = useState('');
     const [ragAnswer, setRagAnswer] = useState(null);
     const [ragError, setRagError] = useState(null);
@@ -122,8 +122,18 @@ export default function HistoryScreen() {
                         {history.length > 0 && (
                             <button onClick={async () => {
                                 if (window.confirm("Are you sure you want to delete all history?")) {
-                                    await clearHistory();
-                                    useToastStore.getState().showToast('All history cleared.', 'success');
+                                    const deletedAll = clearAllHistoryOptimistic();
+                                    let isUndoing = false;
+                                    useToastStore.getState().showToast('All history cleared.', 'success', {
+                                        label: 'Undo',
+                                        onClick: () => {
+                                            isUndoing = true;
+                                            undoClearAllHistory(deletedAll);
+                                        }
+                                    }, 5000);
+                                    setTimeout(() => {
+                                        if (!isUndoing) commitClearAllHistory();
+                                    }, 5000);
                                 }
                             }} className="text-danger text-[11px] font-bold px-2 py-1 uppercase tracking-wider rounded-md bg-danger/10 hover:bg-danger/20 transition-colors">
                                 Clear All
@@ -172,10 +182,18 @@ export default function HistoryScreen() {
                                             </div>
                                             <button
                                                 onClick={async () => {
-                                                    setDeletingId(h.id);
-                                                    await removeHistoryItem(h.id);
-                                                    setDeletingId(null);
-                                                    useToastStore.getState().showToast('History item deleted', 'success');
+                                                    const deletedItem = removeHistoryOptimistic(h.id);
+                                                    let isUndoing = false;
+                                                    useToastStore.getState().showToast('History item deleted', 'success', {
+                                                        label: 'Undo',
+                                                        onClick: () => {
+                                                            isUndoing = true;
+                                                            undoRemoveHistory(deletedItem);
+                                                        }
+                                                    }, 5000);
+                                                    setTimeout(() => {
+                                                        if (!isUndoing) commitRemoveHistory(h.id);
+                                                    }, 5000);
                                                 }}
                                                 disabled={deletingId === h.id}
                                                 className="w-8 h-8 rounded-full bg-surface border border-border-hl flex items-center justify-center text-text-muted hover:text-danger hover:border-danger/50 hover:bg-danger/10 transition-colors shrink-0 disabled:opacity-50"

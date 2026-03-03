@@ -191,6 +191,47 @@ const useTripStore = create((set, get) => ({
             loading: false,
             error: null,
         }),
+    // ── Optimistic Undo Deletes ────────────────
+    removeTripOptimistic: (tripId) => {
+        const deletedTrip = get().trips.find(t => t.id === tripId);
+        set((state) => ({
+            trips: state.trips.filter((t) => t.id !== tripId),
+            currentTrip: state.currentTrip?.id === tripId ? null : state.currentTrip,
+        }));
+        return deletedTrip;
+    },
+    undoRemoveTrip: (trip) => {
+        if (!trip) return;
+        set((state) => ({ trips: [trip, ...state.trips] }));
+    },
+    commitRemoveTrip: async (tripId) => {
+        try { await deleteTrip(tripId); } catch (err) { get()._setError(err); }
+    },
+
+    removeHistoryOptimistic: (historyId) => {
+        const deleted = get().history.find(t => t.id === historyId);
+        set((state) => ({ history: state.history.filter((t) => t.id !== historyId) }));
+        return deleted;
+    },
+    undoRemoveHistory: (historyObj) => {
+        if (!historyObj) return;
+        set((state) => ({ history: [historyObj, ...state.history].sort((a, b) => new Date(b.launched_at) - new Date(a.launched_at)) }));
+    },
+    commitRemoveHistory: async (historyId) => {
+        try { await deleteHistoryItem(historyId); } catch (err) { get()._setError(err); }
+    },
+
+    clearAllHistoryOptimistic: () => {
+        const all = get().history;
+        set({ history: [] });
+        return all;
+    },
+    undoClearAllHistory: (allHistory) => {
+        set({ history: allHistory || [] });
+    },
+    commitClearAllHistory: async () => {
+        try { await clearAllHistory(); } catch (err) { get()._setError(err); }
+    }
 }));
 
 export default useTripStore;

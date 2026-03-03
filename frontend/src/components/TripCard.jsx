@@ -20,10 +20,10 @@ export default function TripCard({ trip }) {
         if (!trip.stops || trip.stops.length < 2) { navigate(`/trips/${trip.id}`); return; }
 
         launchCurrentTrip(trip.id).catch(err => console.error("Failed to track launch", err));
-        useToastStore.getState().showToast('🚌 Opening Google Maps...', 'info');
+        useToastStore.getState().showToast('Opening Google Maps...', 'google');
 
         const url = buildGoogleMapsUrl(trip.stops);
-        if (url) window.location.href = url;
+        if (url) setTimeout(() => { window.location.href = url; }, 2000);
     };
 
     const handleAppleMaps = (e) => {
@@ -31,10 +31,10 @@ export default function TripCard({ trip }) {
         if (!trip.stops || trip.stops.length < 2) { navigate(`/trips/${trip.id}`); return; }
 
         launchCurrentTrip(trip.id).catch(err => console.error("Failed to track launch", err));
-        useToastStore.getState().showToast('🚌 Opening Apple Maps...', 'info');
+        useToastStore.getState().showToast('Opening Apple Maps...', 'apple');
 
         const url = buildAppleMapsUrl(trip.stops);
-        if (url) window.location.href = url;
+        if (url) setTimeout(() => { window.location.href = url; }, 2000);
     };
 
     return (

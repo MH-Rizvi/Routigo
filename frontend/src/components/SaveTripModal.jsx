@@ -1,7 +1,8 @@
 /**
  * SaveTripModal.jsx — Dark enterprise save modal.
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import useTripStore from '../store/tripStore';
 import useToastStore from '../store/toastStore';
 
@@ -10,6 +11,16 @@ export default function SaveTripModal({ stops, onClose, onSaved }) {
     const defaultName = stops?.length >= 2 ? `${stops[0].label} → ${stops[stops.length - 1].label}` : 'My Trip';
     const [name, setName] = useState(defaultName);
     const [notes, setNotes] = useState('');
+
+    useEffect(() => {
+        // Disable scroll on mount
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            // Restore scroll on unmount
+            document.body.style.overflow = originalOverflow;
+        };
+    }, []);
 
     const handleSave = async () => {
         if (!name.trim()) {
@@ -22,16 +33,16 @@ export default function SaveTripModal({ stops, onClose, onSaved }) {
         };
         const saved = await saveTrip(tripData);
         if (saved) {
-            useToastStore.getState().showToast('✅ Trip saved successfully!', 'success');
+            useToastStore.getState().showToast('Trip saved successfully!', 'success');
             onSaved?.(saved);
         } else {
             useToastStore.getState().showToast('Something went wrong.', 'error');
         }
     };
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 p-4">
-            <div className="bg-surface border border-border rounded-2xl w-full max-w-md shadow-card-lg animate-slide-up overflow-hidden">
+    return createPortal(
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/80 px-4 py-8 pointer-events-auto">
+            <div className="bg-surface border border-border rounded-2xl w-full max-w-md shadow-card-lg animate-slide-up overflow-hidden relative z-[1000000]">
                 <div className="h-1 bg-accent" />
                 <div className="p-6">
                     <h2 className="text-xl font-bold text-text-primary mb-4">Save This Trip</h2>
@@ -46,7 +57,7 @@ export default function SaveTripModal({ stops, onClose, onSaved }) {
                         className="w-full rounded-xl border border-border bg-elevated px-4 py-3 text-base text-text-primary placeholder:text-text-muted mb-4 resize-none"
                         placeholder="Any notes about this route…" />
 
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 mt-2">
                         <button onClick={onClose} disabled={loading} className="flex-1 min-h-touch rounded-xl btn-surface text-base">Cancel</button>
                         <button onClick={handleSave} disabled={loading} className="flex-1 min-h-touch rounded-xl bg-success hover:bg-emerald-600 text-white font-bold text-base transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
                             {loading ? <span className="typing-dots"><span /><span /><span /></span> : 'Save Trip'}
@@ -54,6 +65,7 @@ export default function SaveTripModal({ stops, onClose, onSaved }) {
                     </div>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

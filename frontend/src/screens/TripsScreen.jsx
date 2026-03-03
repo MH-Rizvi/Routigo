@@ -84,9 +84,9 @@ function TripRow({ trip, onDelete, onTap }) {
                                 e.stopPropagation();
                                 if (!trip.stops || trip.stops.length < 2) return;
                                 useTripStore.getState().launchCurrentTrip(trip.id).catch(err => console.error(err));
-                                useToastStore.getState().showToast('🚌 Opening Apple Maps...', 'info');
+                                useToastStore.getState().showToast('Opening Apple Maps...', 'apple');
                                 const url = buildAppleMapsUrl(trip.stops);
-                                if (url) window.location.href = url;
+                                if (url) setTimeout(() => { window.location.href = url; }, 2000);
                             }}
                             title="Open in Apple Maps"
                             className="w-8 h-8 rounded-full bg-surface border border-border-hl flex items-center justify-center text-text-primary hover:bg-border-hl transition-colors"
@@ -100,9 +100,9 @@ function TripRow({ trip, onDelete, onTap }) {
                                 e.stopPropagation();
                                 if (!trip.stops || trip.stops.length < 2) return;
                                 useTripStore.getState().launchCurrentTrip(trip.id).catch(err => console.error(err));
-                                useToastStore.getState().showToast('🚌 Opening Google Maps...', 'info');
+                                useToastStore.getState().showToast('Opening Google Maps...', 'google');
                                 const url = buildGoogleMapsUrl(trip.stops);
-                                if (url) window.location.href = url;
+                                if (url) setTimeout(() => { window.location.href = url; }, 2000);
                             }}
                             title="Open in Google Maps"
                             className="w-8 h-8 rounded-full bg-accent border border-accent/70 flex items-center justify-center text-base hover:brightness-110 transition-colors cursor-pointer text-black"
@@ -120,7 +120,7 @@ function TripRow({ trip, onDelete, onTap }) {
 
 export default function TripsScreen() {
     const navigate = useNavigate();
-    const { trips, searchResults, loading, error, fetchTrips, removeTrip, clearError } = useTripStore();
+    const { trips, searchResults, loading, error, fetchTrips, removeTripOptimistic, undoRemoveTrip, commitRemoveTrip, clearError } = useTripStore();
 
     useEffect(() => { fetchTrips(); }, [fetchTrips]);
 
@@ -188,8 +188,18 @@ export default function TripsScreen() {
                             {tripsThisWeek.map((trip, i) => (
                                 <div key={trip.id} className="animate-fade-up" style={{ animationDelay: `${i * 40}ms` }}>
                                     <TripRow trip={trip} onDelete={async (id) => {
-                                        await removeTrip(id);
-                                        useToastStore.getState().showToast('Trip deleted', 'success');
+                                        const deletedData = removeTripOptimistic(id);
+                                        let isUndoing = false;
+                                        useToastStore.getState().showToast('Trip deleted', 'success', {
+                                            label: 'Undo',
+                                            onClick: () => {
+                                                isUndoing = true;
+                                                undoRemoveTrip(deletedData);
+                                            }
+                                        }, 5000);
+                                        setTimeout(() => {
+                                            if (!isUndoing) commitRemoveTrip(id);
+                                        }, 5000);
                                     }} onTap={(id) => navigate(`/trips/${id}`)} />
                                 </div>
                             ))}
@@ -209,8 +219,18 @@ export default function TripsScreen() {
                             {(isSearching ? displayTrips : olderTrips).map((trip, i) => (
                                 <div key={trip.id} className="animate-fade-up" style={{ animationDelay: `${(tripsThisWeek.length + i) * 40}ms` }}>
                                     <TripRow trip={trip} onDelete={async (id) => {
-                                        await removeTrip(id);
-                                        useToastStore.getState().showToast('Trip deleted', 'success');
+                                        const deletedData = removeTripOptimistic(id);
+                                        let isUndoing = false;
+                                        useToastStore.getState().showToast('Trip deleted', 'success', {
+                                            label: 'Undo',
+                                            onClick: () => {
+                                                isUndoing = true;
+                                                undoRemoveTrip(deletedData);
+                                            }
+                                        }, 5000);
+                                        setTimeout(() => {
+                                            if (!isUndoing) commitRemoveTrip(id);
+                                        }, 5000);
                                     }} onTap={(id) => navigate(`/trips/${id}`)} />
                                 </div>
                             ))}

@@ -1,7 +1,7 @@
 /**
  * App.jsx — Root with dark enterprise tab bar.
  */
-import { useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import HomeScreen from './screens/HomeScreen';
 import ChatScreen from './screens/ChatScreen';
@@ -13,6 +13,7 @@ import StatsScreen from './screens/StatsScreen';
 import AuthScreen from './screens/AuthScreen';
 import Toast from './components/Toast';
 import ProtectedRoute from './components/ProtectedRoute';
+import LogoutModal from './components/LogoutModal';
 import useAuthStore from './store/authStore';
 import { logout } from './api/client';
 
@@ -45,47 +46,49 @@ const TABS = [
 ];
 
 function BottomTabBar() {
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
+
     return (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 glass-bar border-t border-border safe-area-bottom">
-            <div className="flex justify-around items-center h-16 max-w-lg mx-auto">
-                {TABS.map((tab) => (
-                    <NavLink
-                        key={tab.path}
-                        to={tab.path}
-                        end={tab.path === '/'}
-                        className={({ isActive }) =>
-                            `relative flex flex-col items-center justify-center min-w-touch min-h-touch px-2 py-1 transition-colors duration-150 ${isActive ? 'text-accent' : 'text-text-muted hover:text-text-secondary'
-                            }`
-                        }
+        <>
+            <nav className="fixed bottom-0 left-0 right-0 z-50 glass-bar border-t border-border safe-area-bottom">
+                <div className="flex justify-start sm:justify-around items-center h-16 max-w-lg mx-auto overflow-x-auto hide-scrollbar px-2 gap-4 sm:gap-0">
+                    {TABS.map((tab) => (
+                        <NavLink
+                            key={tab.path}
+                            to={tab.path}
+                            end={tab.path === '/'}
+                            className={({ isActive }) =>
+                                `relative flex flex-col items-center justify-center min-w-touch min-h-touch px-2 py-1 transition-colors duration-150 ${isActive ? 'text-accent' : 'text-text-muted hover:text-text-secondary'
+                                }`
+                            }
+                        >
+                            {({ isActive }) => (
+                                <>
+                                    {tab.icon}
+                                    <span className={`text-[10px] mt-1 font-medium tracking-wide ${isActive ? 'text-accent' : ''}`}>
+                                        {tab.label}
+                                    </span>
+                                    {isActive && (
+                                        <span className="absolute -bottom-0 w-5 h-0.5 rounded-full bg-accent" />
+                                    )}
+                                </>
+                            )}
+                        </NavLink>
+                    ))}
+                    {/* Logout Button */}
+                    <button
+                        onClick={() => setShowLogoutModal(true)}
+                        className="relative flex flex-col items-center justify-center min-w-touch min-h-touch px-2 py-1 transition-colors duration-150 text-text-muted hover:text-red-500"
                     >
-                        {({ isActive }) => (
-                            <>
-                                {tab.icon}
-                                <span className={`text-[10px] mt-1 font-medium tracking-wide ${isActive ? 'text-accent' : ''}`}>
-                                    {tab.label}
-                                </span>
-                                {isActive && (
-                                    <span className="absolute -bottom-0 w-5 h-0.5 rounded-full bg-accent" />
-                                )}
-                            </>
-                        )}
-                    </NavLink>
-                ))}
-                {/* Logout Button */}
-                <button
-                    onClick={() => {
-                        useAuthStore.getState().clearUser();
-                        logout();
-                    }}
-                    className="relative flex flex-col items-center justify-center min-w-touch min-h-touch px-2 py-1 transition-colors duration-150 text-text-muted hover:text-red-500"
-                >
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
-                    <span className="text-[10px] mt-1 font-medium tracking-wide">
-                        Logout
-                    </span>
-                </button>
-            </div>
-        </nav>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                        <span className="text-[10px] mt-1 font-medium tracking-wide">
+                            Logout
+                        </span>
+                    </button>
+                </div>
+            </nav>
+            {showLogoutModal && <LogoutModal onClose={() => setShowLogoutModal(false)} />}
+        </>
     );
 }
 

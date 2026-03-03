@@ -2,11 +2,12 @@ import { create } from 'zustand';
 
 const useToastStore = create((set, get) => ({
     message: '',
-    type: 'info', // 'success', 'error', 'info'
+    type: 'info', // 'success', 'error', 'info', 'google', 'apple'
+    action: null, // { label: string, onClick: function }
     isVisible: false,
     timeoutId: null,
 
-    showToast: (message, type = 'info') => {
+    showToast: (message, type = 'info', action = null, duration = 3000) => {
         const currentTimeout = get().timeoutId;
         if (currentTimeout) {
             clearTimeout(currentTimeout);
@@ -14,11 +15,12 @@ const useToastStore = create((set, get) => ({
 
         const newTimeoutId = setTimeout(() => {
             set({ isVisible: false });
-        }, 3000);
+        }, duration);
 
         set({
             message,
             type,
+            action,
             isVisible: true,
             timeoutId: newTimeoutId,
         });
@@ -29,7 +31,7 @@ const useToastStore = create((set, get) => ({
         if (currentTimeout) {
             clearTimeout(currentTimeout);
         }
-        set({ isVisible: false, timeoutId: null });
+        set({ isVisible: false, timeoutId: null, action: null });
     }
 }));
 

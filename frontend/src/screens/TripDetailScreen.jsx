@@ -27,20 +27,20 @@ export default function TripDetailScreen() {
         if (!currentTrip?.stops?.length) return;
 
         launchCurrentTrip(currentTrip.id).catch(err => console.error("Failed to track launch", err));
-        useToastStore.getState().showToast('🚌 Opening Google Maps...', 'info');
+        useToastStore.getState().showToast('Opening Google Maps...', 'google');
 
         const url = buildGoogleMapsUrl(currentTrip.stops);
-        if (url) window.location.href = url;
+        if (url) setTimeout(() => { window.location.href = url; }, 2000);
     };
 
     const handleAppleMaps = () => {
         if (!currentTrip?.stops?.length) return;
 
         launchCurrentTrip(currentTrip.id).catch(err => console.error("Failed to track launch", err));
-        useToastStore.getState().showToast('🚌 Opening Apple Maps...', 'info');
+        useToastStore.getState().showToast('Opening Apple Maps...', 'apple');
 
         const url = buildAppleMapsUrl(currentTrip.stops);
-        if (url) window.location.href = url;
+        if (url) setTimeout(() => { window.location.href = url; }, 2000);
     };
 
     const handleDelete = async () => {
