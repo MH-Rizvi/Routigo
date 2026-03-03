@@ -420,3 +420,26 @@ select:focus {
     opacity: 1 !important;
     transform: translate(0, 0) scale(1) !important;
 }
+
+/* ── Mobile: faster, subtler scroll animations ── */
+@media (max-width: 768px) {
+    .reveal-base {
+        transition-duration: 0.4s;
+    }
+
+    .reveal-fade-up {
+        transform: translateY(20px);
+    }
+
+    .reveal-slide-bottom {
+        transform: translateY(30px);
+    }
+
+    .reveal-slide-left {
+        transform: translateX(-30px);
+    }
+
+    .reveal-slide-right {
+        transform: translateX(30px);
+    }
+}

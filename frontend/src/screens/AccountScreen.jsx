@@ -4,6 +4,7 @@
  * Follows the dark/amber Routigo design system.
  */
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import useAuthStore from '../store/authStore';
@@ -105,6 +106,12 @@ export default function AccountScreen() {
     });
     const [deleteText, setDeleteText] = useState('');
     const [loading, setLoading] = useState(false);
+
+    // Lock body scroll when logout modal is open
+    useEffect(() => {
+        document.body.style.overflow = showLogoutModal ? 'hidden' : '';
+        return () => { document.body.style.overflow = ''; };
+    }, [showLogoutModal]);
 
     // Populate edit form when switching to edit
     useEffect(() => {
@@ -384,13 +391,13 @@ export default function AccountScreen() {
             <Header />
 
             <div className="flex-1 overflow-y-auto hide-scrollbar pb-24">
-                <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
+                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 py-6 lg:py-10">
 
                     {/* Two-column grid on desktop */}
-                    <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
+                    <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-start">
 
                         {/* ── Left Column: Profile Card ─────────── */}
-                        <div className="w-full lg:w-[340px] lg:shrink-0 lg:sticky lg:top-[96px]">
+                        <div className="w-full lg:w-[380px] lg:shrink-0 lg:sticky lg:top-[96px]">
                             <SectionCard className="overflow-hidden">
                                 {/* Amber gradient banner */}
                                 <div className="h-24 bg-gradient-to-br from-amber-500/30 via-orange-500/20 to-transparent relative">
@@ -456,10 +463,10 @@ export default function AccountScreen() {
                 </div>
             </div>
 
-            {/* ── Logout Modal ────────────────────────── */}
-            {showLogoutModal && (
+            {/* ── Logout Modal (portalled to body) ──────────── */}
+            {showLogoutModal && createPortal(
                 <div
-                    className="fixed inset-0 z-[200] flex items-center justify-center p-4 animate-fade-in"
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4 animate-fade-in"
                     onClick={() => setShowLogoutModal(false)}
                 >
                     {/* Overlay */}
@@ -471,7 +478,7 @@ export default function AccountScreen() {
                         onClick={e => e.stopPropagation()}
                         style={{ animation: 'modalPop 0.3s cubic-bezier(0.16,1,0.3,1) forwards' }}
                     >
-                        {/* Subtle amber glow */}
+                        {/* Subtle glow */}
                         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 rounded-b-full bg-gradient-to-r from-transparent via-red-500/40 to-transparent" />
 
                         <img src="/logo3_nobg.png" alt="Routigo" className="w-14 h-14 rounded-2xl object-cover mx-auto mb-5 border border-white/10 shadow-[0_0_20px_rgba(245,158,11,0.2)]" />
@@ -482,7 +489,8 @@ export default function AccountScreen() {
                             <button onClick={handleLogout} className="flex-1 py-3.5 bg-red-500 rounded-xl font-bold text-white text-[14px] hover:bg-red-600 shadow-[0_4px_15px_rgba(239,68,68,0.3)] transition-all active:scale-[0.98]">Yes, Sign Out</button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             {/* Modal animation keyframe (injected once) */}

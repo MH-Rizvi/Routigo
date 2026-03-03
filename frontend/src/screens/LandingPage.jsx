@@ -275,6 +275,15 @@ function RevealOnScroll({ children, className = '', activeClass = 'reveal-fade-u
 
     useEffect(() => {
         const currentRef = ref.current;
+        if (!currentRef) return;
+
+        // Check if element is already in the viewport on mount
+        const rect = currentRef.getBoundingClientRect();
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+            setIsVisible(true);
+            return;
+        }
+
         const observer = new IntersectionObserver(
             ([entry]) => {
                 if (entry.isIntersecting) {
@@ -282,23 +291,28 @@ function RevealOnScroll({ children, className = '', activeClass = 'reveal-fade-u
                     observer.unobserve(currentRef);
                 }
             },
-            { threshold: 0.1 }
+            {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            }
         );
 
-        if (currentRef) {
-            observer.observe(currentRef);
-        }
+        observer.observe(currentRef);
 
         return () => {
             if (currentRef) observer.unobserve(currentRef);
         };
     }, []);
 
+    // On mobile (< 768px), cap stagger delay at 100ms
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const effectiveDelay = isMobile ? Math.min(delay, 100) : delay;
+
     return (
         <div
             ref={ref}
             className={`reveal-base ${activeClass} ${isVisible ? 'is-revealed' : ''} ${className}`}
-            style={{ transitionDelay: `${delay}ms` }}
+            style={{ transitionDelay: `${effectiveDelay}ms` }}
         >
             {children}
         </div>
@@ -480,6 +494,63 @@ export default function LandingPage() {
                     </div>
                 </div>
             </section>
+
+
+            {/* ═══ COMING SOON ═══ */}
+            <section className="py-20 lg:py-32 px-5 sm:px-8 relative bg-[#0b1018] transition-colors duration-1000">
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0a0f1a] via-transparent to-[#0a0f1a] pointer-events-none" />
+                <div className="max-w-[1200px] mx-auto relative">
+                    <RevealOnScroll>
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[12px] font-medium mb-6 mx-auto block w-fit">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                            Roadmap
+                        </div>
+                        <h2 className="text-center text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">What&apos;s coming next</h2>
+                    </RevealOnScroll>
+                    <RevealOnScroll delay={100}>
+                        <p className="text-center text-white/40 text-base sm:text-lg mb-16 lg:mb-24">Routigo is just getting started.</p>
+                    </RevealOnScroll>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+                        {/* Card 1 — Right-Side Stop Optimisation */}
+                        <RevealOnScroll delay={0} activeClass="reveal-slide-bottom">
+                            <div className="group relative p-8 lg:p-10 rounded-3xl bg-white/[0.01] border-2 border-dashed border-amber-500/20 hover:border-amber-500/40 hover:bg-white/[0.02] transition-all duration-300 flex flex-col h-full opacity-90 hover:opacity-100">
+                                <div className="w-14 h-14 rounded-2xl bg-amber-500/[0.07] border border-dashed border-amber-500/20 flex items-center justify-center text-amber-400/70 mb-6 group-hover:scale-110 group-hover:text-amber-400 transition-all duration-300">
+                                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18" /><path d="M6 6l6 6" /><path d="M18 18h-6v-6" /><path d="M3 12h2M19 12h2M12 3v2M12 19v2" /></svg>
+                                </div>
+                                <span className="inline-block w-fit px-3 py-1 rounded-full bg-amber-500/15 text-amber-400 text-[11px] font-bold tracking-wider uppercase mb-4 border border-amber-500/20">In Development</span>
+                                <h3 className="text-white/90 font-bold text-[18px] lg:text-[20px] mb-3">Right-Side Stop Optimisation</h3>
+                                <p className="text-white/35 text-[14px] lg:text-[15px] leading-relaxed flex-grow">For school bus drivers — the AI will automatically detect if a stop is on the left side of the road and suggest an alternative approach so children never have to cross.</p>
+                            </div>
+                        </RevealOnScroll>
+
+                        {/* Card 2 — Global Expansion */}
+                        <RevealOnScroll delay={150} activeClass="reveal-slide-bottom">
+                            <div className="group relative p-8 lg:p-10 rounded-3xl bg-white/[0.01] border-2 border-dashed border-amber-500/20 hover:border-amber-500/40 hover:bg-white/[0.02] transition-all duration-300 flex flex-col h-full opacity-90 hover:opacity-100">
+                                <div className="w-14 h-14 rounded-2xl bg-amber-500/[0.07] border border-dashed border-amber-500/20 flex items-center justify-center text-amber-400/70 mb-6 group-hover:scale-110 group-hover:text-amber-400 transition-all duration-300">
+                                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>
+                                </div>
+                                <span className="inline-block w-fit px-3 py-1 rounded-full bg-amber-500/15 text-amber-400 text-[11px] font-bold tracking-wider uppercase mb-4 border border-amber-500/20">Coming Soon</span>
+                                <h3 className="text-white/90 font-bold text-[18px] lg:text-[20px] mb-3">Global Expansion</h3>
+                                <p className="text-white/35 text-[14px] lg:text-[15px] leading-relaxed flex-grow">Currently optimised for the USA. Coming soon to Pakistan, UAE, Canada, Australia, and the UK — with local geocoding and region-aware routing.</p>
+                            </div>
+                        </RevealOnScroll>
+
+                        {/* Card 3 — Fleet Management */}
+                        <RevealOnScroll delay={300} activeClass="reveal-slide-bottom">
+                            <div className="group relative p-8 lg:p-10 rounded-3xl bg-white/[0.01] border-2 border-dashed border-amber-500/20 hover:border-amber-500/40 hover:bg-white/[0.02] transition-all duration-300 flex flex-col h-full opacity-90 hover:opacity-100">
+                                <div className="w-14 h-14 rounded-2xl bg-amber-500/[0.07] border border-dashed border-amber-500/20 flex items-center justify-center text-amber-400/70 mb-6 group-hover:scale-110 group-hover:text-amber-400 transition-all duration-300">
+                                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="6" width="15" height="10" rx="2" /><path d="M16 10h4l3 3v3h-7V10z" /><circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" /></svg>
+                                </div>
+                                <span className="inline-block w-fit px-3 py-1 rounded-full bg-amber-500/15 text-amber-400 text-[11px] font-bold tracking-wider uppercase mb-4 border border-amber-500/20">Coming Soon</span>
+                                <h3 className="text-white/90 font-bold text-[18px] lg:text-[20px] mb-3">Fleet Management</h3>
+                                <p className="text-white/35 text-[14px] lg:text-[15px] leading-relaxed flex-grow">Manage multiple drivers and routes from a single dashboard. Assign routes, track launches, and monitor your fleet in real time.</p>
+                            </div>
+                        </RevealOnScroll>
+                    </div>
+                </div>
+            </section>
+
 
             {/* ═══ MOTIVATION / BACKGROUND ═══ */}
             <section className="py-20 lg:py-32 px-5 sm:px-8 relative bg-[#0a0f1a] border-y border-white/[0.06] overflow-hidden">
