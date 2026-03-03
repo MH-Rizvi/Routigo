@@ -37,7 +37,7 @@ export default function ChatScreen() {
     };
 
     return (
-        <div className="flex flex-col flex-1 w-full relative">
+        <div className="flex flex-col flex-1 w-full relative animate-page-enter">
             <Header
                 rightElement={messages.length > 0 && (
                     <button onClick={resetChat} className="min-h-touch px-3 text-sm text-accent font-bold tracking-wide hover:opacity-80 transition-opacity drop-shadow-md">

@@ -36,7 +36,7 @@ export default function PreviewScreen() {
     };
 
     return (
-        <div className="min-h-full pb-6">
+        <div className="min-h-full pb-6 animate-page-enter">
             <Header
                 rightElement={
                     <button onClick={() => navigate(-1)} className="min-h-touch flex items-center gap-[4px] text-accent font-bold tracking-wide text-sm hover:opacity-80 transition-opacity">
@@ -58,9 +58,9 @@ export default function PreviewScreen() {
                     </div>
                 ) : (
                     <>
-                        <MapPreview stops={stops} />
+                        <div className="animate-fade-in"><MapPreview stops={stops} /></div>
 
-                        <div className="flex items-center justify-between mt-4 mb-2">
+                        <div className="flex items-center justify-between mt-4 mb-2 animate-fade-up" style={{ animationDelay: '50ms' }}>
                             <h2 className="text-sm font-bold text-text-primary font-mono">{stops.length} Stop{stops.length !== 1 ? 's' : ''}</h2>
                             <p className="text-xs text-text-muted">Drag to reorder</p>
                         </div>
@@ -71,9 +71,11 @@ export default function PreviewScreen() {
                             </div>
                         )}
 
-                        <StopList stops={stops} onReorder={handleReorder} onDelete={handleDeleteStop} />
+                        <div className="animate-fade-up" style={{ animationDelay: '100ms' }}>
+                            <StopList stops={stops} onReorder={handleReorder} onDelete={handleDeleteStop} />
+                        </div>
 
-                        <div className="grid grid-cols-2 gap-3 mt-6">
+                        <div className="grid grid-cols-2 gap-3 mt-6 animate-fade-up" style={{ animationDelay: '150ms' }}>
                             <button onClick={() => {
                                 useToastStore.getState().showToast('Opening Apple Maps...', 'apple');
                                 const url = buildAppleMapsUrl(stops);
@@ -92,7 +94,7 @@ export default function PreviewScreen() {
                             </button>
                         </div>
 
-                        <div className="flex flex-col gap-3 mt-4">
+                        <div className="flex flex-col gap-3 mt-4 animate-fade-up" style={{ animationDelay: '200ms' }}>
                             {tripId ? (
                                 <>
                                     <button onClick={handleOverwriteCurrent} disabled={stops.length < 2 || isSaving} className="w-full min-h-touch rounded-xl bg-success hover:bg-emerald-600 text-white font-bold text-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50">

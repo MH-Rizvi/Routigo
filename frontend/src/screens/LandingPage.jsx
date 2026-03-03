@@ -101,7 +101,7 @@ function DemoChat({ onRequiresAuth }) {
     };
 
     return (
-        <div className="w-full max-w-[520px] mx-auto rounded-3xl border border-white/[0.08] bg-surface/80 backdrop-blur-xl shadow-[0_8px_64px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col" style={{ height: 'min(440px, 60vh)' }}>
+        <div className="w-full max-w-[680px] mx-auto rounded-3xl border border-white/[0.08] bg-surface/80 backdrop-blur-xl shadow-[0_20px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(245,158,11,0.1)] overflow-hidden flex flex-col transition-shadow duration-500 hover:shadow-[0_20px_80px_rgba(0,0,0,0.6),0_0_60px_rgba(245,158,11,0.2)]" style={{ height: 'min(500px, 60vh)' }}>
             {/* Chat header */}
             <div className="flex items-center gap-3 px-5 py-3.5 border-b border-white/[0.06] bg-white/[0.02]">
                 <div className="w-9 h-9 rounded-full bg-white/[0.05] border border-white/[0.1] flex items-center justify-center p-1.5 shadow-lg shadow-amber-500/10">
@@ -219,20 +219,45 @@ function SignupGateModal({ onClose }) {
 
 
 /* ──────────────────────────────────────────────
-   FAQ ACCORDION ITEM
+   FAQ ACCORDION / FLIP CARD
    ────────────────────────────────────────────── */
 function FAQItem({ q, a }) {
     const [open, setOpen] = useState(false);
     return (
-        <div className="border-b border-white/[0.06] last:border-0">
-            <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between py-5 px-1 text-left group">
-                <span className="text-white text-[15px] font-medium pr-4 group-hover:text-accent transition-colors">{q}</span>
-                <IconChevron open={open} />
-            </button>
-            <div className={`overflow-hidden transition-all duration-300 ${open ? 'max-h-40 pb-4' : 'max-h-0'}`}>
-                <p className="text-white/50 text-[14px] leading-relaxed px-1">{a}</p>
+        <>
+            {/* Mobile / Tablet: Accordion */}
+            <div className="lg:hidden rounded-3xl border border-white/[0.06] bg-white/[0.02] overflow-hidden transition-all duration-300 hover:border-amber-500/20 hover:bg-white/[0.04] mb-4">
+                <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between p-6 sm:p-8 text-left group">
+                    <span className="text-white text-[16px] sm:text-[18px] font-medium pr-4 group-hover:text-accent transition-colors">{q}</span>
+                    <div className="w-8 h-8 rounded-full bg-white/[0.05] flex items-center justify-center shrink-0 group-hover:bg-amber-500/10 transition-colors">
+                        <IconChevron open={open} />
+                    </div>
+                </button>
+                <div className={`overflow-hidden transition-all duration-500 ${open ? 'max-h-64 pb-8 px-6 sm:px-8 opacity-100' : 'max-h-0 px-6 sm:px-8 opacity-0'}`}>
+                    <p className="text-white/50 text-[15px] leading-relaxed">{a}</p>
+                </div>
             </div>
-        </div>
+
+            {/* Desktop: Flash Card */}
+            <div
+                className="hidden lg:block relative w-full h-48 cursor-pointer group perspective-1000"
+                onClick={() => setOpen(!open)}
+            >
+                <div className={`relative w-full h-full transition-transform duration-700 transform-style-3d ${open ? 'rotate-y-180' : ''}`}>
+                    {/* Front */}
+                    <div className="absolute inset-0 backface-hidden rounded-3xl border border-white/[0.06] bg-white/[0.02] p-8 flex items-center justify-center hover:border-amber-500/20 hover:bg-white/[0.04] transition-colors shadow-lg">
+                        <span className="text-white text-[18px] font-medium text-center group-hover:text-accent transition-colors">{q}</span>
+                    </div>
+                    {/* Back */}
+                    <div className="absolute inset-0 backface-hidden rounded-3xl border border-amber-500/30 bg-amber-500/10 p-8 flex flex-col items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.15)] rotate-y-180">
+                        <div className="absolute top-4 right-4 text-amber-500/40">
+                            <IconSparkle />
+                        </div>
+                        <p className="text-white/90 text-[16px] leading-relaxed text-center">{a}</p>
+                    </div>
+                </div>
+            </div>
+        </>
     );
 }
 
@@ -291,7 +316,7 @@ export default function LandingPage() {
 
 
             {/* ═══ HERO ═══ */}
-            <section className="relative pt-28 sm:pt-36 pb-20 px-5 sm:px-8">
+            <section className="relative pt-28 lg:pt-40 pb-20 lg:pb-32 px-5 sm:px-8">
                 {/* Background effects */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
                     <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-amber-500/[0.06] rounded-full blur-[120px]" />
@@ -299,7 +324,7 @@ export default function LandingPage() {
                     <div className="absolute top-60 right-1/4 w-[300px] h-[300px] bg-amber-400/[0.03] rounded-full blur-[80px]" />
                 </div>
 
-                <div className="relative max-w-6xl mx-auto">
+                <div className="relative max-w-[1200px] mx-auto">
                     {/* Badge */}
                     <div className="flex justify-center mb-6 animate-fade-up">
                         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[12px] font-medium">
@@ -328,27 +353,31 @@ export default function LandingPage() {
 
 
             {/* ═══ HOW IT WORKS ═══ */}
-            <section className="py-20 px-5 sm:px-8 relative">
+            <section className="py-20 lg:py-32 px-5 sm:px-8 relative">
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-500/[0.02] to-transparent pointer-events-none" />
-                <div className="max-w-4xl mx-auto relative">
-                    <h2 className="text-center text-2xl sm:text-3xl font-bold mb-3">How it works</h2>
-                    <p className="text-center text-white/40 text-sm mb-12">Three steps to your next route.</p>
+                <div className="max-w-[1200px] mx-auto relative">
+                    <h2 className="text-center text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">How it works</h2>
+                    <p className="text-center text-white/40 text-base sm:text-lg mb-16 lg:mb-24">Three steps to your next route.</p>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 relative">
+                        {/* Connecting Line (Desktop) */}
+                        <div className="hidden md:block absolute top-[52px] lg:top-[60px] left-[15%] right-[15%] h-[2px] border-t-2 border-dashed border-white/[0.1] -z-10" />
+
                         {[
                             { step: '01', icon: <IconChat />, title: 'Describe your route', desc: 'Type or speak where you need to go — no addresses required.' },
                             { step: '02', icon: <IconMapPin />, title: 'AI resolves stops', desc: 'The agent geocodes each stop and checks your semantic memory.' },
                             { step: '03', icon: <IconNavigation />, title: 'Launch navigation', desc: 'One tap to open Google Maps with every stop pre-loaded.' },
                         ].map((item) => (
-                            <div key={item.step} className="group relative text-center p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-amber-500/20 hover:bg-amber-600/[0.03] transition-all duration-300">
-                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[11px] font-bold tracking-widest">
+                            <div key={item.step} className="group relative text-center p-8 lg:p-10 rounded-3xl bg-base border border-white/[0.06] hover:border-amber-500/20 hover:bg-white/[0.02] transition-all duration-300">
+                                <div className="w-16 h-16 rounded-2xl bg-base border border-white/[0.08] flex items-center justify-center mx-auto mb-6 relative z-10 group-hover:border-amber-500/30 group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(245,158,11,0.2)] transition-all duration-300">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent rounded-2xl" />
+                                    <div className="text-amber-400 relative z-10">{item.icon}</div>
+                                </div>
+                                <div className="inline-block px-3 py-1 mb-4 rounded-full bg-amber-500/10 text-amber-400 text-[12px] font-bold tracking-widest">
                                     STEP {item.step}
                                 </div>
-                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-400/5 border border-amber-500/10 flex items-center justify-center mx-auto mt-3 mb-4 text-amber-400 group-hover:scale-110 transition-transform duration-300">
-                                    {item.icon}
-                                </div>
-                                <h3 className="text-white font-semibold text-[15px] mb-2">{item.title}</h3>
-                                <p className="text-white/40 text-[13px] leading-relaxed">{item.desc}</p>
+                                <h3 className="text-white font-semibold text-[18px] lg:text-[20px] mb-3">{item.title}</h3>
+                                <p className="text-white/40 text-[14px] lg:text-[15px] leading-relaxed max-w-[280px] mx-auto">{item.desc}</p>
                             </div>
                         ))}
                     </div>
@@ -357,60 +386,94 @@ export default function LandingPage() {
 
 
             {/* ═══ FEATURES ═══ */}
-            <section className="py-20 px-5 sm:px-8">
-                <div className="max-w-5xl mx-auto">
-                    <h2 className="text-center text-2xl sm:text-3xl font-bold mb-3">Built for real-world drivers</h2>
-                    <p className="text-center text-white/40 text-sm mb-12">Enterprise-grade AI. Dead-simple interface.</p>
+            <section className="py-20 lg:py-32 px-5 sm:px-8 relative">
+                <div className="max-w-[1200px] mx-auto animate-fade-in" style={{ animationTimeline: 'view()', animationRange: 'cover 0% cover 30%' }}>
+                    <h2 className="text-center text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">Built for real-world drivers</h2>
+                    <p className="text-center text-white/40 text-base sm:text-lg mb-16 lg:mb-24">Enterprise-grade AI. Dead-simple interface.</p>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {FEATURES.map((f) => (
-                            <div key={f.title} className="group p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-amber-500/15 hover:bg-white/[0.04] transition-all duration-300">
-                                <div className="text-amber-400 mb-3">{f.icon}</div>
-                                <h3 className="text-white font-semibold text-[15px] mb-1.5">{f.title}</h3>
-                                <p className="text-white/40 text-[13px] leading-relaxed">{f.desc}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                        {FEATURES.map((f, i) => (
+                            <div key={f.title} className="group p-8 lg:p-10 rounded-3xl bg-white/[0.02] border border-white/[0.06] hover:-translate-y-2 hover:border-amber-500/30 hover:shadow-[0_15px_40px_rgba(245,158,11,0.1)] transition-all duration-300 flex flex-col h-full animate-fade-up" style={{ animationDelay: `${i * 100}ms` }}>
+                                <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-400 mb-6 group-hover:scale-110 group-hover:bg-amber-500/20 transition-all duration-300">
+                                    {f.icon}
+                                </div>
+                                <h3 className="text-white font-bold text-[18px] lg:text-[20px] mb-3">{f.title}</h3>
+                                <p className="text-white/40 text-[15px] leading-relaxed flex-grow">{f.desc}</p>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
+            {/* ═══ MOTIVATION / BACKGROUND ═══ */}
+            <section className="py-20 lg:py-32 px-5 sm:px-8 relative bg-white/[0.01] border-y border-white/[0.06]">
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/[0.02] to-transparent pointer-events-none" />
+                <div className="max-w-[1000px] mx-auto relative animate-fade-up">
+                    <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+                        <div className="flex-1 text-left">
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[12px] font-medium mb-6">
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                                Our Story
+                            </div>
+                            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 tracking-tight">Why we built Routigo.</h2>
+                            <p className="text-white/60 text-base lg:text-lg leading-relaxed mb-6">
+                                As drivers, we noticed that a lot of our time was wasted tapping small screens, copying addresses between texts, and fixing navigation glitches. Time spent fighting software is time not spent hitting the next stop.
+                            </p>
+                            <p className="text-white/60 text-base lg:text-lg leading-relaxed">
+                                So we decided to build an AI-powered router that requires <strong className="text-amber-500 font-bold">zero typing</strong>. We wanted an interface where you just tell the system your plan in natural language, and an intelligent agent handles the geocoding, sorting, and map generation automatically.
+                            </p>
+                        </div>
+                        <div className="flex-1 w-full relative">
+                            <div className="aspect-square max-w-[400px] mx-auto relative rounded-[40px] border border-white/[0.08] bg-surface/80 backdrop-blur-xl shadow-2xl overflow-hidden p-8 flex flex-col justify-between hidden lg:flex">
+                                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent pointer-events-none" />
+                                <div className="text-amber-500 mb-6">
+                                    <IconBrain />
+                                </div>
+                                <h3 className="text-2xl font-bold text-white leading-tight mb-4">Less screen time.<br />More drive time.</h3>
+                                <div className="text-xl text-white/40 font-mono">print("Let's go.")</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
 
             {/* ═══ SOCIAL PROOF / STATS ═══ */}
-            <section className="py-20 px-5 sm:px-8">
-                <div className="max-w-4xl mx-auto">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <section className="py-20 lg:py-32 px-5 sm:px-8">
+                <div className="max-w-[1200px] mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
 
                         {/* Card 1: AI Tools */}
-                        <div className="group relative text-center p-10 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-amber-500/25 hover:shadow-[0_0_30px_rgba(245,158,11,0.06)] transition-all duration-300 overflow-hidden">
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
-                            <div className="text-amber-400/60 mb-4 flex justify-center">
-                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg>
+                        <div className="group relative text-center p-10 lg:p-14 rounded-3xl bg-white/[0.02] border border-white/[0.06] hover:border-amber-500/25 hover:shadow-[0_0_40px_rgba(245,158,11,0.08)] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col items-center justify-center">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
+                            <div className="text-amber-400/60 mb-6 flex justify-center group-hover:text-amber-400 group-hover:scale-110 transition-all duration-300">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg>
                             </div>
-                            <p className="text-[clamp(44px,6vw,60px)] font-extrabold bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600/60 bg-clip-text text-transparent leading-none mb-3">5</p>
-                            <p className="text-white text-[14px] font-semibold mb-1.5">AI Tools</p>
-                            <p className="text-white/30 text-[12px] leading-relaxed">Geocoding, semantic search, trip recall, history retrieval, RAG</p>
+                            <p className="text-[clamp(48px,6vw,72px)] font-extrabold bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600/60 bg-clip-text text-transparent leading-none mb-4 group-hover:drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all">5</p>
+                            <p className="text-white text-[16px] lg:text-[18px] font-bold mb-2">AI Tools</p>
+                            <p className="text-white/40 text-[14px] lg:text-[15px] leading-relaxed max-w-[250px]">Geocoding, semantic search, trip recall, history retrieval, RAG</p>
                         </div>
 
                         {/* Card 2: Response Time */}
-                        <div className="group relative text-center p-10 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-amber-500/25 hover:shadow-[0_0_30px_rgba(245,158,11,0.06)] transition-all duration-300 overflow-hidden">
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
-                            <div className="text-amber-400/60 mb-4 flex justify-center">
-                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
+                        <div className="group relative text-center p-10 lg:p-14 rounded-3xl bg-white/[0.02] border border-white/[0.06] hover:border-amber-500/25 hover:shadow-[0_0_40px_rgba(245,158,11,0.08)] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col items-center justify-center">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
+                            <div className="text-amber-400/60 mb-6 flex justify-center group-hover:text-amber-400 group-hover:scale-110 transition-all duration-300">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
                             </div>
-                            <p className="text-[clamp(44px,6vw,60px)] font-extrabold bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600/60 bg-clip-text text-transparent leading-none mb-3">&lt; 8s</p>
-                            <p className="text-white text-[14px] font-semibold mb-1.5">Response Time</p>
-                            <p className="text-white/30 text-[12px] leading-relaxed">Average agent reasoning chain completion</p>
+                            <p className="text-[clamp(48px,6vw,72px)] font-extrabold bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600/60 bg-clip-text text-transparent leading-none mb-4 group-hover:drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all">&lt; 8s</p>
+                            <p className="text-white text-[16px] lg:text-[18px] font-bold mb-2">Response Time</p>
+                            <p className="text-white/40 text-[14px] lg:text-[15px] leading-relaxed max-w-[250px]">Average agent reasoning chain completion</p>
                         </div>
 
                         {/* Card 3: Time to first route */}
-                        <div className="group relative text-center p-10 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-amber-500/25 hover:shadow-[0_0_30px_rgba(245,158,11,0.06)] transition-all duration-300 overflow-hidden">
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
-                            <div className="text-amber-400/60 mb-4 flex justify-center">
-                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                        <div className="group relative text-center p-10 lg:p-14 rounded-3xl bg-white/[0.02] border border-white/[0.06] hover:border-amber-500/25 hover:shadow-[0_0_40px_rgba(245,158,11,0.08)] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col items-center justify-center">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
+                            <div className="text-amber-400/60 mb-6 flex justify-center group-hover:text-amber-400 group-hover:scale-110 transition-all duration-300">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
                             </div>
-                            <p className="text-[clamp(44px,6vw,60px)] font-extrabold bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600/60 bg-clip-text text-transparent leading-none mb-3">2 min</p>
-                            <p className="text-white text-[14px] font-semibold mb-1.5">To Plan Your First Route</p>
-                            <p className="text-white/30 text-[12px] leading-relaxed">From sign up to navigating your first route in under 2 minutes</p>
+                            <p className="text-[clamp(48px,6vw,72px)] font-extrabold bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600/60 bg-clip-text text-transparent leading-none mb-4 group-hover:drop-shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all">2 min</p>
+                            <p className="text-white text-[16px] lg:text-[18px] font-bold mb-2">To Plan Your First Route</p>
+                            <p className="text-white/40 text-[14px] lg:text-[15px] leading-relaxed max-w-[250px]">From sign up to navigating your first route in under 2 minutes</p>
                         </div>
 
                     </div>
@@ -419,15 +482,26 @@ export default function LandingPage() {
 
 
             {/* ═══ FAQ ═══ */}
-            <section className="py-20 px-5 sm:px-8">
-                <div className="max-w-2xl mx-auto">
-                    <h2 className="text-center text-2xl sm:text-3xl font-bold mb-3">Questions?</h2>
-                    <p className="text-center text-white/40 text-sm mb-10">Everything you need to know.</p>
+            <section className="py-20 lg:py-32 px-5 sm:px-8">
+                <div className="max-w-[1200px] mx-auto">
+                    <h2 className="text-center text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight animate-fade-up">Questions?</h2>
+                    <p className="text-center text-white/40 text-base sm:text-lg mb-16 lg:mb-24 animate-fade-up">Everything you need to know.</p>
 
-                    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.01] px-6">
-                        {FAQ.map((item) => (
-                            <FAQItem key={item.q} q={item.q} a={item.a} />
-                        ))}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 items-start">
+                        <div className="flex flex-col lg:gap-8">
+                            {FAQ.slice(0, 3).map((item, i) => (
+                                <div key={item.q} className="animate-fade-up" style={{ animationDelay: `${i * 100}ms` }}>
+                                    <FAQItem q={item.q} a={item.a} />
+                                </div>
+                            ))}
+                        </div>
+                        <div className="flex flex-col lg:gap-8">
+                            {FAQ.slice(3, 5).map((item, i) => (
+                                <div key={item.q} className="animate-fade-up" style={{ animationDelay: `${(i + 3) * 100}ms` }}>
+                                    <FAQItem q={item.q} a={item.a} />
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </section>

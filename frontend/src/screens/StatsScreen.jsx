@@ -129,26 +129,26 @@ export default function StatsScreen() {
 
     return (
         <div className="flex-1 overflow-y-auto bg-bg-app p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl mx-auto w-full">
-            <header className="pt-2">
+            <header className="pt-2 animate-fade-up">
                 <h1 className="text-2xl font-bold tracking-tight text-text-primary">Dashboard</h1>
             </header>
 
             {/* 2x2 Grid for Core Period Stats */}
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                <StatCard label="Trips Today" value={formatInt(summary?.trips_today)} />
-                <StatCard label="Trips This Week" value={formatInt(summary?.trips_this_week)} />
-                <StatCard label="Miles Today" value={formatMiles(summary?.miles_today)} suffix="mi" />
-                <StatCard label="Miles This Week" value={formatMiles(summary?.miles_this_week)} suffix="mi" />
+                <div className="animate-fade-up" style={{ animationDelay: '50ms' }}><StatCard label="Trips Today" value={formatInt(summary?.trips_today)} /></div>
+                <div className="animate-fade-up" style={{ animationDelay: '100ms' }}><StatCard label="Trips This Week" value={formatInt(summary?.trips_this_week)} /></div>
+                <div className="animate-fade-up" style={{ animationDelay: '150ms' }}><StatCard label="Miles Today" value={formatMiles(summary?.miles_today)} suffix="mi" /></div>
+                <div className="animate-fade-up" style={{ animationDelay: '200ms' }}><StatCard label="Miles This Week" value={formatMiles(summary?.miles_this_week)} suffix="mi" /></div>
             </div>
 
             {/* Lifetime Stats */}
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                <StatCard label="Lifetime Trips" value={formatInt(summary?.total_trips)} isSecondary />
-                <StatCard label="Lifetime Miles" value={formatMiles(summary?.miles_all_time)} suffix="mi" isSecondary />
+                <div className="animate-fade-up" style={{ animationDelay: '250ms' }}><StatCard label="Lifetime Trips" value={formatInt(summary?.total_trips)} isSecondary /></div>
+                <div className="animate-fade-up" style={{ animationDelay: '300ms' }}><StatCard label="Lifetime Miles" value={formatMiles(summary?.miles_all_time)} suffix="mi" isSecondary /></div>
             </div>
 
             {/* Chart Section */}
-            <div className="bg-surface border border-border rounded-3xl p-4 sm:p-6 shadow-sm overflow-hidden">
+            <div className="bg-surface border border-border rounded-3xl p-4 sm:p-6 shadow-sm overflow-hidden animate-fade-up" style={{ animationDelay: '400ms' }}>
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-base font-semibold text-text-primary">Daily Miles Driven</h2>
                     <div className="flex bg-bg-app rounded-xl p-1 border border-border shrink-0">

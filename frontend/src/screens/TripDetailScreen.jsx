@@ -86,7 +86,7 @@ export default function TripDetailScreen() {
     const stops = currentTrip.stops || [];
 
     return (
-        <div className="min-h-full pb-6">
+        <div className="min-h-full pb-6 animate-page-enter">
             <Header
                 rightElement={
                     <button onClick={() => navigate(-1)} className="min-h-touch flex items-center gap-[4px] text-accent font-bold tracking-wide text-sm hover:opacity-80 transition-opacity">

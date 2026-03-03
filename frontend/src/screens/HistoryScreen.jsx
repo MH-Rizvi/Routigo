@@ -51,7 +51,7 @@ export default function HistoryScreen() {
     };
 
     return (
-        <div className="min-h-full pb-4">
+        <div className="min-h-full pb-4 animate-page-enter">
             <Header
                 rightElement={
                     <span className="text-accent text-[12px] font-bold tracking-widest uppercase hidden sm:inline">History</span>

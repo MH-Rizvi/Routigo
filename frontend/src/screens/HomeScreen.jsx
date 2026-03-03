@@ -43,7 +43,7 @@ export default function HomeScreen() {
     else if (currentHour < 17) greeting = 'Good afternoon';
 
     return (
-        <div className="min-h-full pb-4 flex flex-col">
+        <div className="min-h-full pb-4 flex flex-col animate-page-enter">
             <Header />
 
             {/* Greeting */}

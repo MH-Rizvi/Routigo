@@ -138,7 +138,7 @@ export default function TripsScreen() {
     const olderTrips = displayTrips.filter(t => !tripsThisWeek.includes(t));
 
     return (
-        <div className="min-h-full pb-6 flex flex-col">
+        <div className="min-h-full pb-6 flex flex-col animate-page-enter">
             <Header
                 rightElement={
                     <div className="flex flex-col items-end">
