@@ -1,4 +1,4 @@
-# Technical Specification — RouteEasy v2.0
+# Technical Specification — Routigo v2.0
 ## Architecture & Implementation Blueprint (Agentic AI Edition)
 
 **Version:** 2.0  
@@ -243,7 +243,7 @@ agent_executor = AgentExecutor(
 
 ```python
 AGENT_PROMPT_TEMPLATE = """
-You are RouteEasy, an AI assistant for bus and delivery drivers. 
+You are Routigo, an AI assistant for bus and delivery drivers. 
 Your job is to help drivers plan their routes from natural language descriptions.
 
 You have access to the following tools:
@@ -759,7 +759,7 @@ VITE_API_BASE_URL=http://localhost:8000/api/v1
 ## 12. Project Structure
 
 ```
-routeeasy/
+Routigo/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
