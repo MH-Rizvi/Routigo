@@ -45,8 +45,17 @@ export default function PreviewScreen() {
                 },
                 (error) => {
                     console.error("Geolocation error:", error);
-                    useToastStore.getState().showToast("Could not secure location. Please enable location services.", "error");
-                }
+                    let message = "Could not secure location. Please enable location services.";
+                    if (error.code === 1) { // PERMISSION_DENIED
+                        message = "Location access is blocked. Please enable location in your browser settings to use current location.";
+                    } else if (error.code === 2) { // POSITION_UNAVAILABLE
+                        message = "Unable to get your location. Please try again.";
+                    } else if (error.code === 3) { // TIMEOUT
+                        message = "Location request timed out. Please try again.";
+                    }
+                    useToastStore.getState().showToast(message, "error");
+                },
+                { timeout: 10000 }
             );
         }
     }, [initialStops]);
@@ -106,6 +115,34 @@ export default function PreviewScreen() {
 
                         <div className="grid grid-cols-2 gap-3 mt-6 animate-fade-up" style={{ animationDelay: '150ms' }}>
                             <button onClick={() => {
+                                const needsLocation = stops.some(s => s.label?.toLowerCase() === 'current location' && (s.lat == null || s.lng == null));
+                                if (needsLocation && navigator.geolocation) {
+                                    navigator.geolocation.getCurrentPosition(
+                                        (pos) => {
+                                            const { latitude, longitude } = pos.coords;
+                                            const newStops = stops.map(s => {
+                                                if (s.label?.toLowerCase() === 'current location') return { ...s, lat: latitude, lng: longitude, resolved: 'Your Location' };
+                                                return s;
+                                            });
+                                            setStops(newStops);
+                                            useToastStore.getState().showToast('Opening Apple Maps...', 'apple');
+                                            recordAdHocHistory(newStops, 'chat_preview', tripId);
+                                            const url = buildAppleMapsUrl(newStops);
+                                            if (url) openMapLink(url);
+                                        },
+                                        (error) => {
+                                            console.error("Geolocation error:", error);
+                                            let message = "Could not secure location. Please enable location services.";
+                                            if (error.code === 1) message = "Location access is blocked. Please enable location in your browser settings to use current location.";
+                                            else if (error.code === 2) message = "Unable to get your location. Please try again.";
+                                            else if (error.code === 3) message = "Location request timed out. Please try again.";
+                                            useToastStore.getState().showToast(message, "error");
+                                        },
+                                        { timeout: 10000 }
+                                    );
+                                    return;
+                                }
+
                                 useToastStore.getState().showToast('Opening Apple Maps...', 'apple');
                                 recordAdHocHistory(stops, 'chat_preview', tripId);
                                 const url = buildAppleMapsUrl(stops);
@@ -115,6 +152,34 @@ export default function PreviewScreen() {
                                 Apple Maps
                             </button>
                             <button onClick={() => {
+                                const needsLocation = stops.some(s => s.label?.toLowerCase() === 'current location' && (s.lat == null || s.lng == null));
+                                if (needsLocation && navigator.geolocation) {
+                                    navigator.geolocation.getCurrentPosition(
+                                        (pos) => {
+                                            const { latitude, longitude } = pos.coords;
+                                            const newStops = stops.map(s => {
+                                                if (s.label?.toLowerCase() === 'current location') return { ...s, lat: latitude, lng: longitude, resolved: 'Your Location' };
+                                                return s;
+                                            });
+                                            setStops(newStops);
+                                            useToastStore.getState().showToast('Opening Google Maps...', 'google');
+                                            recordAdHocHistory(newStops, 'chat_preview', tripId);
+                                            const url = buildGoogleMapsUrl(newStops);
+                                            if (url) openMapLink(url);
+                                        },
+                                        (error) => {
+                                            console.error("Geolocation error:", error);
+                                            let message = "Could not secure location. Please enable location services.";
+                                            if (error.code === 1) message = "Location access is blocked. Please enable location in your browser settings to use current location.";
+                                            else if (error.code === 2) message = "Unable to get your location. Please try again.";
+                                            else if (error.code === 3) message = "Location request timed out. Please try again.";
+                                            useToastStore.getState().showToast(message, "error");
+                                        },
+                                        { timeout: 10000 }
+                                    );
+                                    return;
+                                }
+
                                 useToastStore.getState().showToast('Opening Google Maps...', 'google');
                                 recordAdHocHistory(stops, 'chat_preview', tripId);
                                 const url = buildGoogleMapsUrl(stops);
