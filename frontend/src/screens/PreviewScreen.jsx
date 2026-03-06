@@ -1,7 +1,7 @@
 /**
  * PreviewScreen.jsx — Dark enterprise route preview.
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import StopList from '../components/StopList';
 import MapPreview from '../components/MapPreview';
@@ -21,6 +21,35 @@ export default function PreviewScreen() {
     const [stops, setStops] = useState(initialStops);
     const [showSaveModal, setShowSaveModal] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        const needsLocation = initialStops.some(stop =>
+            stop.label?.toLowerCase() === 'current location' || stop.lat == null || stop.lng == null
+        );
+
+        if (needsLocation && navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    setStops(prev => prev.map(stop => {
+                        if (stop.label?.toLowerCase() === 'current location' || stop.lat == null || stop.lng == null) {
+                            return {
+                                ...stop,
+                                lat: latitude,
+                                lng: longitude,
+                                resolved: 'Your Location'
+                            };
+                        }
+                        return stop;
+                    }));
+                },
+                (error) => {
+                    console.error("Geolocation error:", error);
+                    useToastStore.getState().showToast("Could not secure location. Please enable location services.", "error");
+                }
+            );
+        }
+    }, [initialStops]);
 
     const handleReorder = (reordered) => setStops(reordered);
     const handleDeleteStop = (index) => setStops((prev) => prev.filter((_, i) => i !== index));

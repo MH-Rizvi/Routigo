@@ -13,7 +13,11 @@
 export function buildGoogleMapsUrl(stops) {
     if (!stops || stops.length < 2) return '';
 
-    const origin = `${stops[0].lat},${stops[0].lng}`;
+    let origin = `${stops[0].lat},${stops[0].lng}`;
+    if (stops[0].label?.toLowerCase() === 'current location' || stops[0].resolved?.toLowerCase() === 'your location') {
+        origin = 'My+Location';
+    }
+
     const destination = `${stops[stops.length - 1].lat},${stops[stops.length - 1].lng}`;
     const waypoints = stops
         .slice(1, -1)
@@ -42,7 +46,11 @@ export function buildGoogleMapsUrl(stops) {
 export function buildAppleMapsUrl(stops) {
     if (!stops || stops.length < 2) return '';
 
-    const saddr = `${stops[0].lat},${stops[0].lng}`;
+    let saddr = `${stops[0].lat},${stops[0].lng}`;
+    if (stops[0].label?.toLowerCase() === 'current location' || stops[0].resolved?.toLowerCase() === 'your location') {
+        saddr = 'Current+Location';
+    }
+
     const daddr = stops
         .slice(1)
         .map((s) => `${s.lat},${s.lng}`)
