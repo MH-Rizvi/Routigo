@@ -10,10 +10,54 @@ from sqlalchemy.orm import Session  # pyright: ignore[reportMissingImports]
 from app import models, schemas
 from app.auth import get_current_user
 from app.database import get_db
-from app.services import vector_service
+from app.services import vector_service, directions_service
+import json
 
 
 router = APIRouter(tags=["history"])
+
+@router.post("/history/record", response_model=schemas.TripHistory)
+async def record_history(
+    payload: schemas.RecordHistoryRequest,
+    db: Session = Depends(get_db),
+    current_user: Any = Depends(get_current_user),
+) -> schemas.TripHistory:
+    now = datetime.utcnow()
+    
+    stops_snapshot = [
+        {
+            "label": stop.label,
+            "resolved": stop.resolved,
+            "lat": stop.lat,
+            "lng": stop.lng,
+            "position": stop.position,
+            "note": stop.note,
+        }
+        for stop in payload.stops
+    ]
+
+    history = models.TripHistory(
+        user_id=current_user.id,
+        trip_id=payload.trip_id,
+        trip_name=payload.trip_name,
+        raw_input=payload.source,
+        stops_json=json.dumps(stops_snapshot),
+        launched_at=now
+    )
+    db.add(history)
+    db.flush()
+    db.refresh(history)
+
+    # Optional: Calculate miles async
+    try:
+        total_miles = await directions_service.calculate_route_miles(stops_snapshot)
+        history.total_miles = total_miles
+    except Exception:
+        history.total_miles = 0.0
+
+    db.commit()
+    db.refresh(history)
+    return history
 
 
 @router.get("/history", response_model=schemas.HistoryListResponse)

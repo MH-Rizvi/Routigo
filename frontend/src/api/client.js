@@ -177,6 +177,16 @@ export const getHistory = async () => {
     return data;
 };
 
+export const recordHistory = async (stops, source, tripId = null, tripName = null) => {
+    const { data } = await api.post('/history/record', {
+        stops,
+        source,
+        trip_id: tripId,
+        trip_name: tripName
+    });
+    return data;
+};
+
 export const deleteHistoryItem = async (historyId) => {
     const { data } = await api.delete(`/history/${historyId}`);
     return data;

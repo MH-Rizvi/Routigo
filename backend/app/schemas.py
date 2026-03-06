@@ -165,6 +165,13 @@ class TripHistory(BaseModel):
     total_miles: Optional[float] = None
 
 
+class RecordHistoryRequest(BaseModel):
+    stops: List[StopBase]
+    source: str
+    trip_id: Optional[int] = None
+    trip_name: Optional[str] = None
+
+
 class HistoryListResponse(BaseModel):
     items: List[TripHistory]
 

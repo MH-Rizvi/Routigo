@@ -8,7 +8,7 @@ import useToastStore from '../store/toastStore';
 
 export default function TripCard({ trip }) {
     const navigate = useNavigate();
-    const { launchCurrentTrip } = useTripStore();
+    const { recordAdHocHistory } = useTripStore();
 
     const stopCount = trip.stops?.length || 0;
     const lastUsed = trip.last_used
@@ -19,7 +19,7 @@ export default function TripCard({ trip }) {
         e.stopPropagation();
         if (!trip.stops || trip.stops.length < 2) { navigate(`/trips/${trip.id}`); return; }
 
-        launchCurrentTrip(trip.id).catch(err => console.error("Failed to track launch", err));
+        recordAdHocHistory(trip.stops, 'home_launch', trip.id, trip.name).catch(err => console.error("Failed to track launch", err));
         useToastStore.getState().showToast('Opening Google Maps...', 'google');
 
         const url = buildGoogleMapsUrl(trip.stops);
@@ -30,7 +30,7 @@ export default function TripCard({ trip }) {
         e.stopPropagation();
         if (!trip.stops || trip.stops.length < 2) { navigate(`/trips/${trip.id}`); return; }
 
-        launchCurrentTrip(trip.id).catch(err => console.error("Failed to track launch", err));
+        recordAdHocHistory(trip.stops, 'home_launch', trip.id, trip.name).catch(err => console.error("Failed to track launch", err));
         useToastStore.getState().showToast('Opening Apple Maps...', 'apple');
 
         const url = buildAppleMapsUrl(trip.stops);

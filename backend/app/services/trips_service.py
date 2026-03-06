@@ -280,7 +280,7 @@ async def launch_trip(db: Session, trip_id: int, user_id: str) -> Optional[model
         user_id=user_id,
         trip_id=trip.id,
         trip_name=trip.name,
-        raw_input=None,
+        raw_input="saved_trip",
         stops_json=json.dumps(stops_snapshot),
     )
     db.add(history)

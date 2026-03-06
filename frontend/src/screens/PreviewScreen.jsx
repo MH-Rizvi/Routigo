@@ -14,7 +14,7 @@ import Header from '../components/Header';
 export default function PreviewScreen() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { editTrip } = useTripStore();
+    const { editTrip, recordAdHocHistory } = useTripStore();
 
     const initialStops = location.state?.stops || [];
     const tripId = location.state?.tripId || null;
@@ -78,6 +78,7 @@ export default function PreviewScreen() {
                         <div className="grid grid-cols-2 gap-3 mt-6 animate-fade-up" style={{ animationDelay: '150ms' }}>
                             <button onClick={() => {
                                 useToastStore.getState().showToast('Opening Apple Maps...', 'apple');
+                                recordAdHocHistory(stops, 'chat_preview', tripId);
                                 const url = buildAppleMapsUrl(stops);
                                 if (url) openMapLink(url);
                             }} disabled={stops.length < 2 || isSaving} className="w-full h-16 rounded-xl bg-surface border border-border-hl text-text-primary text-sm font-semibold flex flex-col items-center justify-center gap-1 hover:bg-border-hl transition-colors disabled:opacity-30">
@@ -86,6 +87,7 @@ export default function PreviewScreen() {
                             </button>
                             <button onClick={() => {
                                 useToastStore.getState().showToast('Opening Google Maps...', 'google');
+                                recordAdHocHistory(stops, 'chat_preview', tripId);
                                 const url = buildGoogleMapsUrl(stops);
                                 if (url) openMapLink(url);
                             }} disabled={stops.length < 2 || isSaving} className="w-full h-16 rounded-xl btn-accent text-sm font-semibold text-black flex flex-col items-center justify-center gap-1 disabled:opacity-30">

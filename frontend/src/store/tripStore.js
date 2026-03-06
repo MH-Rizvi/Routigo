@@ -16,6 +16,7 @@ import {
     getHistory,
     deleteHistoryItem,
     clearAllHistory,
+    recordHistory,
 } from '../api/client';
 
 const useTripStore = create((set, get) => ({
@@ -143,6 +144,16 @@ const useTripStore = create((set, get) => ({
     },
 
     clearSearch: () => set({ searchResults: [], isSearchActive: false }),
+
+    /** Record ad-hoc trip history directly for unsaved trips */
+    recordAdHocHistory: async (stops, source, tripId = null, tripName = null) => {
+        try {
+            await recordHistory(stops, source, tripId, tripName);
+            get().fetchHistory(); // Refresh history
+        } catch (err) {
+            console.error("Failed to record ad-hoc history", err);
+        }
+    },
 
     /** Fetch recent launch history. */
     fetchHistory: async () => {
