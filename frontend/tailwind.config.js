@@ -80,6 +80,14 @@ export default {
                         'background-position': 'right center'
                     },
                 },
+                'typing-dot': {
+                    '0%, 80%, 100%': { transform: 'scale(0.4)', opacity: '0.3' },
+                    '40%': { transform: 'scale(1)', opacity: '1' },
+                },
+                'draw-line': {
+                    '0%': { width: '0%' },
+                    '100%': { width: '100%' },
+                },
             },
             animation: {
                 'fade-up': 'fade-up 0.5s ease-out both',
@@ -89,6 +97,8 @@ export default {
                 'shimmer': 'shimmer 1.5s infinite linear',
                 'glow-pulse': 'glow-pulse 2s infinite ease-in-out',
                 'gradient-x': 'gradient-x 8s ease infinite',
+                'typing-dot': 'typing-dot 1.4s infinite ease-in-out both',
+                'draw-line': 'draw-line 1s ease-out forwards',
             },
         },
     },
