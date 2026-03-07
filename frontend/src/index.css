@@ -7,16 +7,21 @@
 
 /* ── CSS Variables ────────────────────────── */
 :root {
+    --sat: env(safe-area-inset-top);
+    --sab: env(safe-area-inset-bottom);
+    --sal: env(safe-area-inset-left);
+    --sar: env(safe-area-inset-right);
+
     --bg-base: #0A0F1E;
-    --bg-surface: #111827;
+    --bg-surface: #141A2D;
     --bg-elevated: #1a2235;
-    --accent: #F59E0B;
+    --acc-amber: #F59E0B;
     --accent-dim: #92400E;
     --accent-glow: rgba(245, 158, 11, 0.15);
-    --text-primary: #F9FAFB;
+    --text-primary: #F8FAFC;
     --text-secondary: #9CA3AF;
-    --text-muted: #4B5563;
-    --success: #10B981;
+    --text-muted: #94A3B8;
+    --acc-emerald: #10B981;
     --danger: #EF4444;
     --border: #1F2937;
     --border-highlight: #374151;
@@ -379,8 +384,15 @@ select:focus {
 /* ── Pulse Glow ──────────────────────────── */
 
 @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 8px rgba(245, 158, 11, 0.15); }
-    50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
+
+    0%,
+    100% {
+        box-shadow: 0 0 8px rgba(245, 158, 11, 0.15);
+    }
+
+    50% {
+        box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+    }
 }
 
 .animate-pulse-glow {
@@ -391,8 +403,15 @@ select:focus {
 
 @media (min-width: 769px) {
     @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-4px); }
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-4px);
+        }
     }
 
     .animate-float {
