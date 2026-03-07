@@ -84,6 +84,9 @@ export default function TripDetailScreen() {
     }
 
     const stops = currentTrip.stops || [];
+    const lastUsed = currentTrip.last_used
+        ? new Date(currentTrip.last_used).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+        : null;
 
     return (
         <div className="min-h-full pb-6 animate-page-enter">
@@ -96,55 +99,120 @@ export default function TripDetailScreen() {
                 }
             />
 
-            <div className="px-4 sm:px-5 mt-4 sm:mt-5 animate-fade-up pb-24">
-                <h1 className="text-2xl font-bold text-text-primary mb-1">{currentTrip.name}</h1>
-                {currentTrip.notes && <p className="text-text-secondary text-sm mb-3">{currentTrip.notes}</p>}
+            <div className="px-4 sm:px-5 lg:px-8 mt-4 sm:mt-5 animate-fade-up pb-24 lg:pb-8 lg:max-w-6xl lg:mx-auto lg:w-full">
+                {/* Desktop back button (since Header is hidden on lg:) */}
+                <button onClick={() => navigate(-1)} className="hidden lg:flex items-center gap-1.5 text-accent font-bold text-sm mb-4 hover:opacity-80 transition-opacity">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
+                    Back to Trips
+                </button>
 
-                {stops.length > 0 && <MapPreview stops={stops} />}
+                <div className="lg:grid lg:grid-cols-3 lg:gap-8">
+                    {/* ── Left column: Trip content ── */}
+                    <div className="lg:col-span-2">
+                        <h1 className="text-2xl font-bold text-text-primary mb-1">{currentTrip.name}</h1>
+                        {currentTrip.notes && <p className="text-text-secondary text-sm mb-3">{currentTrip.notes}</p>}
 
-                <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider mt-4 mb-3 font-mono">{stops.length} Stop{stops.length !== 1 ? 's' : ''}</h2>
+                        {stops.length > 0 && <MapPreview stops={stops} />}
 
-                {/* Stop list with route dots */}
-                <div className="relative mb-6">
-                    {stops.length > 1 && <div className="absolute left-[11px] top-3 bottom-3 w-px bg-gradient-to-b from-[#F59E0B]/40 via-[#F59E0B]/20 to-[#F59E0B]/40" />}
-                    <div className="space-y-3">
-                        {stops.map((stop, i) => (
-                            <div key={stop.id || i} className="flex gap-3 animate-fade-up" style={{ animationDelay: `${i * 40}ms` }}>
-                                <div className="relative z-10 w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-1" style={{ background: '#0A0F1E', border: '2px solid #F59E0B', boxShadow: '0 0 6px rgba(245,158,11,0.3)' }}>
-                                    <span className="text-[9px] font-bold text-[#F59E0B] font-mono">{i + 1}</span>
-                                </div>
-                                <div className="glow-card p-3 flex-1">
-                                    <p className="text-sm font-semibold text-text-primary truncate">{stop.label || stop.resolved}</p>
-                                    {stop.resolved && stop.resolved !== stop.label && (
-                                        <p className="text-xs text-text-muted truncate mt-0.5">{stop.resolved}</p>
+                        <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider mt-4 mb-3 font-mono">{stops.length} Stop{stops.length !== 1 ? 's' : ''}</h2>
+
+                        {/* Stop list with route dots */}
+                        <div className="relative mb-6">
+                            {stops.length > 1 && <div className="absolute left-[11px] top-3 bottom-3 w-px bg-gradient-to-b from-[#F59E0B]/40 via-[#F59E0B]/20 to-[#F59E0B]/40" />}
+                            <div className="space-y-3">
+                                {stops.map((stop, i) => (
+                                    <div key={stop.id || i} className="flex gap-3 animate-fade-up" style={{ animationDelay: `${i * 40}ms` }}>
+                                        <div className="relative z-10 w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-1" style={{ background: '#0A0F1E', border: '2px solid #F59E0B', boxShadow: '0 0 6px rgba(245,158,11,0.3)' }}>
+                                            <span className="text-[9px] font-bold text-[#F59E0B] font-mono">{i + 1}</span>
+                                        </div>
+                                        <div className="glow-card p-3 flex-1">
+                                            <p className="text-sm font-semibold text-text-primary truncate">{stop.label || stop.resolved}</p>
+                                            {stop.resolved && stop.resolved !== stop.label && (
+                                                <p className="text-xs text-text-muted truncate mt-0.5">{stop.resolved}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Mobile: Actions inline (unchanged) */}
+                        <div className="flex flex-col gap-3 lg:hidden">
+                            <div className="grid grid-cols-2 gap-3">
+                                <button onClick={handleAppleMaps} disabled={stops.length < 2} className="w-full h-16 rounded-xl text-text-primary text-sm font-semibold flex flex-col items-center justify-center gap-1 transition-all disabled:opacity-30" style={{ background: 'linear-gradient(135deg, rgba(30,41,59,0.5) 0%, rgba(13,17,23,0.8) 100%)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.05 2.53.81 3.19.81.79 0 2.21-1.01 3.84-.86 1.63.13 3.13.84 4.02 2.11-3.41 1.98-2.88 6.51.35 7.84-.79 1.83-2.09 3.85-3.4 5.07zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.32 2.28-1.9 4.2-3.74 4.25z" /></svg>
+                                    Apple Maps
+                                </button>
+                                <button onClick={handleGoogleMaps} disabled={stops.length < 2} className="w-full h-16 rounded-xl text-sm font-semibold text-[#0D1117] flex flex-col items-center justify-center gap-1 disabled:opacity-30 transition-all" style={{ background: '#F59E0B', boxShadow: '0 0 20px rgba(245,158,11,0.3)' }}>
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z" /></svg>
+                                    Google Maps
+                                </button>
+                            </div>
+                            <button onClick={() => navigate('/preview', { state: { stops, tripId: currentTrip.id } })} className="w-full min-h-touch rounded-xl btn-surface text-lg flex items-center justify-center gap-2">
+                                Edit Route
+                            </button>
+                            <button onClick={handleDelete} disabled={deleting} className="w-full min-h-touch rounded-xl border-2 border-danger/50 text-danger font-semibold text-lg flex items-center justify-center gap-2 hover:bg-danger/10 transition-colors disabled:opacity-50">
+                                {deleting ? <span className="typing-dots"><span /><span /><span /></span> : 'Delete Trip'}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* ── Right column: Actions sidebar (desktop only) ── */}
+                    <div className="hidden lg:block lg:col-span-1">
+                        <div className="lg:sticky lg:top-6 space-y-4">
+                            {/* Trip Info Card */}
+                            <div className="rounded-2xl p-5" style={{ background: 'linear-gradient(135deg, rgba(30,41,59,0.4) 0%, rgba(13,17,23,0.7) 100%)', border: '1px solid rgba(245,158,11,0.1)' }}>
+                                <h3 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-4 flex items-center gap-2">
+                                    <div className="w-1 h-3 rounded-full bg-[#F59E0B]" />
+                                    Trip Info
+                                </h3>
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[13px] text-white/50">Stops</span>
+                                        <span className="text-[16px] font-bold text-white">{stops.length}</span>
+                                    </div>
+                                    <div className="h-px bg-white/[0.04]" />
+                                    {lastUsed && (
+                                        <>
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-[13px] text-white/50">Last Used</span>
+                                                <span className="text-[13px] font-medium text-white/70">{lastUsed}</span>
+                                            </div>
+                                            <div className="h-px bg-white/[0.04]" />
+                                        </>
+                                    )}
+                                    {currentTrip.notes && (
+                                        <div>
+                                            <span className="text-[13px] text-white/50 block mb-1">Notes</span>
+                                            <p className="text-[13px] text-white/70 leading-relaxed">{currentTrip.notes}</p>
+                                        </div>
                                     )}
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                </div>
 
-                <div className="flex flex-col gap-3">
-                    <div className="grid grid-cols-2 gap-3">
-                        <button onClick={handleAppleMaps} disabled={stops.length < 2} className="w-full h-16 rounded-xl text-text-primary text-sm font-semibold flex flex-col items-center justify-center gap-1 transition-all disabled:opacity-30" style={{ background: 'linear-gradient(135deg, rgba(30,41,59,0.5) 0%, rgba(13,17,23,0.8) 100%)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.05 2.53.81 3.19.81.79 0 2.21-1.01 3.84-.86 1.63.13 3.13.84 4.02 2.11-3.41 1.98-2.88 6.51.35 7.84-.79 1.83-2.09 3.85-3.4 5.07zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.32 2.28-1.9 4.2-3.74 4.25z" />
-                            </svg>
-                            Apple Maps
-                        </button>
-                        <button onClick={handleGoogleMaps} disabled={stops.length < 2} className="w-full h-16 rounded-xl text-sm font-semibold text-[#0D1117] flex flex-col items-center justify-center gap-1 disabled:opacity-30 transition-all" style={{ background: '#F59E0B', boxShadow: '0 0 20px rgba(245,158,11,0.3)' }}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z" />
-                            </svg>
-                            Google Maps
-                        </button>
+                            {/* Launch Buttons */}
+                            <div className="space-y-3">
+                                <button onClick={handleGoogleMaps} disabled={stops.length < 2} className="w-full h-14 rounded-xl text-sm font-bold text-[#0D1117] flex items-center justify-center gap-2 disabled:opacity-30 transition-all" style={{ background: '#F59E0B', boxShadow: '0 0 20px rgba(245,158,11,0.3)' }}>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z" /></svg>
+                                    Open in Google Maps
+                                </button>
+                                <button onClick={handleAppleMaps} disabled={stops.length < 2} className="w-full h-14 rounded-xl text-text-primary text-sm font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-30" style={{ background: 'linear-gradient(135deg, rgba(30,41,59,0.5) 0%, rgba(13,17,23,0.8) 100%)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.05 2.53.81 3.19.81.79 0 2.21-1.01 3.84-.86 1.63.13 3.13.84 4.02 2.11-3.41 1.98-2.88 6.51.35 7.84-.79 1.83-2.09 3.85-3.4 5.07zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.32 2.28-1.9 4.2-3.74 4.25z" /></svg>
+                                    Open in Apple Maps
+                                </button>
+                            </div>
+
+                            {/* Edit & Delete */}
+                            <div className="space-y-2 pt-2">
+                                <button onClick={() => navigate('/preview', { state: { stops, tripId: currentTrip.id } })} className="w-full min-h-touch rounded-xl btn-surface text-sm flex items-center justify-center gap-2">
+                                    Edit Route
+                                </button>
+                                <button onClick={handleDelete} disabled={deleting} className="w-full min-h-touch rounded-xl border border-danger/30 text-danger font-semibold text-sm flex items-center justify-center gap-2 hover:bg-danger/10 transition-colors disabled:opacity-50">
+                                    {deleting ? <span className="typing-dots"><span /><span /><span /></span> : 'Delete Trip'}
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <button onClick={() => navigate('/preview', { state: { stops, tripId: currentTrip.id } })} className="w-full min-h-touch rounded-xl btn-surface text-lg flex items-center justify-center gap-2">
-                        Edit Route
-                    </button>
-                    <button onClick={handleDelete} disabled={deleting} className="w-full min-h-touch rounded-xl border-2 border-danger/50 text-danger font-semibold text-lg flex items-center justify-center gap-2 hover:bg-danger/10 transition-colors disabled:opacity-50">
-                        {deleting ? <span className="typing-dots"><span /><span /><span /></span> : 'Delete Trip'}
-                    </button>
                 </div>
             </div>
         </div>

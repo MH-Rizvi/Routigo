@@ -426,14 +426,14 @@ export default function AccountScreen() {
         <div className="flex flex-col h-full animate-page-enter bg-base">
             <Header />
 
-            <div className="flex-1 overflow-y-auto hide-scrollbar pb-24">
+            <div className="flex-1 overflow-y-auto hide-scrollbar pb-24 lg:pb-8">
                 <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 py-6 lg:py-10">
 
                     {/* Two-column grid on desktop */}
                     <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-start">
 
                         {/* ── Left Column: Profile Card ─────────── */}
-                        <div className="w-full lg:w-[380px] lg:shrink-0 lg:sticky lg:top-[96px]">
+                        <div className="w-full lg:w-[380px] lg:shrink-0 lg:sticky lg:top-6">
                             <SectionCard className="overflow-hidden">
                                 {/* Amber gradient banner */}
                                 <div className="h-24 bg-gradient-to-br from-amber-500/30 via-orange-500/20 to-transparent relative">

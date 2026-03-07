@@ -40,7 +40,7 @@ function TripRow({ trip, onDelete, onTap }) {
         : null;
 
     return (
-        <div className="relative overflow-hidden rounded-2xl">
+        <div className="relative overflow-hidden rounded-2xl w-full">
             <div
                 className="absolute inset-0 bg-danger flex items-center justify-end pr-6 rounded-2xl transition-opacity duration-200"
                 style={{ opacity: offset > 0 ? 1 : 0 }}
@@ -140,7 +140,7 @@ export default function TripsScreen() {
     const olderTrips = displayTrips.filter(t => !tripsThisWeek.includes(t));
 
     return (
-        <div className="min-h-full pb-6 flex flex-col animate-page-enter">
+        <div className="min-h-full pb-6 flex flex-col animate-page-enter lg:px-8 lg:pt-6">
             <Header
                 rightElement={
                     <div className="flex flex-col items-end">
@@ -150,8 +150,8 @@ export default function TripsScreen() {
                 }
             />
 
-            <div className="px-4 sm:px-5 mt-4 sm:mt-6 flex-1 pb-24">
-                <div className="mb-6"><SemanticSearchBar /></div>
+            <div className="px-4 sm:px-5 lg:px-8 mt-4 sm:mt-6 flex-1 pb-24 lg:max-w-4xl lg:mx-auto w-full">
+                <div className="mb-6 lg:max-w-xl"><SemanticSearchBar /></div>
 
                 {loading && displayTrips.length === 0 && (
                     <div className="space-y-4">{[1, 2, 3].map(i => <div key={i} className="skeleton rounded-2xl h-24" />)}</div>
@@ -181,7 +181,7 @@ export default function TripsScreen() {
                             <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
                             Active This Week
                         </h2>
-                        <div className="space-y-3">
+                        <div className="space-y-3 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
                             {tripsThisWeek.map((trip, i) => (
                                 <div key={trip.id} className="animate-fade-up" style={{ animationDelay: `${i * 40}ms` }}>
                                     <TripRow trip={trip} onDelete={async (id) => {
@@ -212,7 +212,7 @@ export default function TripsScreen() {
                                 Older Routes
                             </h2>
                         )}
-                        <div className="space-y-3">
+                        <div className="space-y-3 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
                             {(isSearching ? displayTrips : olderTrips).map((trip, i) => (
                                 <div key={trip.id} className="animate-fade-up" style={{ animationDelay: `${(tripsThisWeek.length + i) * 40}ms` }}>
                                     <TripRow trip={trip} onDelete={async (id) => {
@@ -236,7 +236,7 @@ export default function TripsScreen() {
                 )}
 
                 {!isSearching && trips.length > 0 && (
-                    <div className="flex justify-center mt-10 mb-4 opacity-70">
+                    <div className="flex justify-center mt-10 mb-4 opacity-70 lg:hidden">
                         <p className="text-xs font-mono text-white flex items-center gap-2 px-4 py-2 rounded-full" style={{ background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 4px 15px rgba(0,0,0,0.3)' }}>
                             <span className="tracking-widest capitalize font-bold">Swipe left on a card to delete</span>
                         </p>

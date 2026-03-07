@@ -1,7 +1,8 @@
 /**
- * App.jsx — Root with dark enterprise tab bar.
+ * App.jsx — Root with dark enterprise tab bar + desktop sidebar.
  */
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { BrowserRouter, Routes, Route, NavLink, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import HomeScreen from './screens/HomeScreen';
 import ChatScreen from './screens/ChatScreen';
@@ -18,6 +19,7 @@ import CompleteProfileScreen from './screens/CompleteProfileScreen';
 import Toast from './components/Toast';
 import ProtectedRoute from './components/ProtectedRoute';
 import useAuthStore from './store/authStore';
+import { logout } from './api/client';
 
 const TABS = [
     {
@@ -52,10 +54,137 @@ const TABS = [
     },
 ];
 
+/* ── Desktop Sidebar (hidden on mobile, visible lg:) ──── */
+function DesktopSidebar() {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const user = useAuthStore((s) => s.user);
+    const initials = user ? `${user.first_name?.[0] || ''}${user.last_name?.[0] || ''}`.toUpperCase() || 'U' : 'U';
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+    const handleLogout = async () => {
+        setShowLogoutConfirm(false);
+        await logout();
+    };
+
+    return (
+        <>
+            <aside className="hidden lg:flex flex-col fixed left-0 top-0 bottom-0 w-64 z-50" style={{ background: '#0F172A', borderRight: '1px solid rgba(245,158,11,0.15)' }}>
+                {/* ── Logo ── */}
+                <div className="px-5 pt-6 pb-5 cursor-pointer group" onClick={() => navigate('/home')}>
+                    <div className="flex items-center gap-2.5">
+                        <div className="relative flex items-center justify-center">
+                            <div className="absolute inset-0 bg-accent/30 blur-xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity duration-500 mix-blend-screen" />
+                            <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center relative z-10 transition-transform duration-500 group-hover:scale-105" style={{ border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 0 12px rgba(245,158,11,0.25)', background: 'rgba(255,255,255,0.03)' }}>
+                                <img src="/logo3_nobg.png" alt="Routigo" className="w-[140%] h-[140%] max-w-none object-cover rounded-full" />
+                            </div>
+                        </div>
+                        <div style={{ fontFamily: "'DM Sans', sans-serif" }} className="text-[22px] leading-none flex items-baseline tracking-tight">
+                            <span className="text-white font-extrabold">Rout</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-amber-600 font-extrabold ml-[1px]">igo</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* ── Divider ── */}
+                <div className="mx-4 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+
+                {/* ── Nav Links ── */}
+                <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+                    {TABS.map((tab) => {
+                        const isActive = tab.path === '/home'
+                            ? location.pathname === '/home'
+                            : location.pathname.startsWith(tab.path);
+                        return (
+                            <NavLink
+                                key={tab.path}
+                                to={tab.path}
+                                className="relative flex items-center gap-3 px-4 py-3 rounded-xl text-[14px] font-medium transition-all duration-200 group"
+                                style={isActive ? {
+                                    background: 'rgba(245,158,11,0.08)',
+                                    color: '#F59E0B',
+                                    borderLeft: '4px solid #F59E0B',
+                                } : {
+                                    color: '#94A3B8',
+                                    borderLeft: '4px solid transparent',
+                                }}
+                            >
+                                <div className={`transition-all duration-300 ${isActive ? 'drop-shadow-[0_0_6px_rgba(245,158,11,0.5)]' : 'group-hover:text-white'}`}>
+                                    {tab.icon}
+                                </div>
+                                <span className={`${isActive ? '' : 'group-hover:text-white'} transition-colors`}>{tab.label}</span>
+                            </NavLink>
+                        );
+                    })}
+                </nav>
+
+                {/* ── Divider ── */}
+                <div className="mx-4 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+
+                {/* ── User Section ── */}
+                {user && (
+                    <div className="p-4">
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #1a1a2e, #0d0d1a)', border: '2px solid rgba(245,158,11,0.3)', boxShadow: '0 0 8px rgba(245,158,11,0.15)' }}>
+                                <span className="text-[#F59E0B] text-[13px] font-extrabold">{initials}</span>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-[13px] font-semibold text-white/90 truncate">{user.first_name} {user.last_name}</p>
+                                <p className="text-[11px] text-white/40 truncate">{user.email}</p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => setShowLogoutConfirm(true)}
+                            className="w-full flex items-center justify-center gap-2 py-2 text-[12px] font-bold rounded-lg transition-all duration-200"
+                            style={{ color: 'rgba(248,113,113,0.8)', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)' }}
+                        >
+                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                            Sign Out
+                        </button>
+                    </div>
+                )}
+            </aside>
+
+            {/* ── Sidebar Logout Confirmation Modal ── */}
+            {showLogoutConfirm && createPortal(
+                <div
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+                    onClick={() => setShowLogoutConfirm(false)}
+                    style={{ animation: 'fade-in 0.2s ease-out forwards' }}
+                >
+                    <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" />
+                    <div
+                        className="relative w-full max-w-[400px] bg-gradient-to-br from-[#141824] via-[#111827] to-[#0d1117] border border-white/[0.08] rounded-3xl p-8 shadow-[0_25px_60px_rgba(0,0,0,0.6)] text-center"
+                        onClick={e => e.stopPropagation()}
+                        style={{ animation: 'sidebarModalPop 0.3s cubic-bezier(0.16,1,0.3,1) forwards' }}
+                    >
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 rounded-b-full bg-gradient-to-r from-transparent via-red-500/40 to-transparent" />
+                        <img src="/logo3_nobg.png" alt="Routigo" className="w-14 h-14 rounded-2xl object-cover mx-auto mb-5 border border-white/10 shadow-[0_0_20px_rgba(245,158,11,0.2)]" />
+                        <h3 className="text-xl font-extrabold text-white mb-2 tracking-tight">Sign Out</h3>
+                        <p className="text-[14px] text-white/50 mb-8 leading-relaxed">Are you sure you want to sign out of Routigo?</p>
+                        <div className="flex gap-3">
+                            <button onClick={() => setShowLogoutConfirm(false)} className="flex-1 py-3.5 bg-white/[0.04] border border-white/[0.1] rounded-xl font-bold text-white/80 text-[14px] hover:bg-white/[0.08] transition-all">Cancel</button>
+                            <button onClick={handleLogout} className="flex-1 py-3.5 bg-red-500 rounded-xl font-bold text-white text-[14px] hover:bg-red-600 shadow-[0_4px_15px_rgba(239,68,68,0.3)] transition-all active:scale-[0.98]">Yes, Sign Out</button>
+                        </div>
+                    </div>
+                    <style>{`
+                    @keyframes sidebarModalPop {
+                        from { opacity: 0; transform: scale(0.92) translateY(10px); }
+                        to { opacity: 1; transform: scale(1) translateY(0); }
+                    }
+                `}</style>
+                </div>,
+                document.body
+            )}
+        </>
+    );
+}
+
+/* ── Bottom Tab Bar (mobile only) ──── */
 function BottomTabBar() {
     return (
         <>
-            <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/[0.06] safe-area-bottom" style={{ background: 'rgba(13, 17, 23, 0.92)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/[0.06] safe-area-bottom lg:hidden" style={{ background: 'rgba(13, 17, 23, 0.92)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
                 {/* Amber top accent line */}
                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#F59E0B]/20 to-transparent" />
                 <div className="flex justify-start sm:justify-around items-center h-16 max-w-lg mx-auto overflow-x-auto hide-scrollbar px-2 gap-4 sm:gap-0">
@@ -98,6 +227,9 @@ function AppShell() {
         location.pathname === '/complete-profile' ||
         location.pathname === '/auth/callback';
 
+    // Show sidebar only on authenticated app screens (not landing, auth, callback, etc.)
+    const showSidebar = !hideTabBar;
+
     const hydrate = useAuthStore((state) => state.hydrate);
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const isHydrating = useAuthStore((state) => state.isHydrating);
@@ -118,9 +250,12 @@ function AppShell() {
     }, [hydrate]);
 
     return (
-        <div className="flex flex-col min-h-screen relative">
+        <div className="flex min-h-screen relative">
             <Toast />
-            <main className={`flex-1 flex flex-col overflow-y-auto ${hideTabBar ? '' : 'pb-safe-tabbar'}`}>
+            {/* Desktop sidebar — only on authenticated screens */}
+            {showSidebar && <DesktopSidebar />}
+            {/* Main content area — shifts right on desktop when sidebar is visible */}
+            <main className={`flex-1 flex flex-col overflow-y-auto ${hideTabBar ? '' : 'pb-safe-tabbar lg:pb-0'} ${showSidebar ? 'lg:ml-64' : ''}`}>
                 <Routes>
                     <Route path="/login" element={<AuthScreen />} />
                     <Route path="/auth/callback" element={<AuthCallbackScreen />} />

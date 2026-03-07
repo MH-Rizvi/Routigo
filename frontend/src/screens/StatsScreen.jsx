@@ -128,13 +128,13 @@ export default function StatsScreen() {
     }
 
     return (
-        <div className="flex-1 overflow-y-auto bg-bg-app p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl mx-auto w-full">
+        <div className="flex-1 overflow-y-auto bg-bg-app p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl lg:max-w-6xl mx-auto w-full pb-24 lg:pb-8">
             <header className="pt-2 animate-fade-up">
                 <h1 className="text-2xl font-bold tracking-tight text-text-primary">Dashboard</h1>
             </header>
 
             {/* 2x2 Grid for Core Period Stats */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <div className="animate-fade-up" style={{ animationDelay: '50ms' }}><StatCard label="Trips Today" value={formatInt(summary?.trips_today)} /></div>
                 <div className="animate-fade-up" style={{ animationDelay: '100ms' }}><StatCard label="Trips This Week" value={formatInt(summary?.trips_this_week)} /></div>
                 <div className="animate-fade-up" style={{ animationDelay: '150ms' }}><StatCard label="Miles Today" value={formatMiles(summary?.miles_today)} suffix="mi" /></div>
@@ -142,7 +142,7 @@ export default function StatsScreen() {
             </div>
 
             {/* Lifetime Stats */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <div className="animate-fade-up" style={{ animationDelay: '250ms' }}><StatCard label="Lifetime Trips" value={formatInt(summary?.total_trips)} isSecondary /></div>
                 <div className="animate-fade-up" style={{ animationDelay: '300ms' }}><StatCard label="Lifetime Miles" value={formatMiles(summary?.miles_all_time)} suffix="mi" isSecondary /></div>
             </div>
@@ -169,7 +169,7 @@ export default function StatsScreen() {
                     </div>
                 </div>
 
-                <div className="h-64 w-full -ml-4 sm:m-0">
+                <div className="h-64 lg:h-80 w-full -ml-4 sm:m-0">
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                             <XAxis
