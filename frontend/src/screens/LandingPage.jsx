@@ -269,33 +269,13 @@ function StepOneAnimation() {
     const [phase, setPhase] = useState('waiting');   // waiting | typing | done
     const [charIdx, setCharIdx] = useState(0);
     const [showConfirm, setShowConfirm] = useState(false);
-    const timeouts = useRef([]);
 
-    const enqueue = useCallback((fn, ms) => {
-        const id = setTimeout(fn, ms);
-        timeouts.current.push(id);
-        return id;
-    }, []);
-
-    const reset = useCallback(() => {
-        timeouts.current.forEach(clearTimeout);
-        timeouts.current = [];
-        setPhase('waiting');
-        setCharIdx(0);
-        setShowConfirm(false);
-    }, []);
-
-    /* main loop */
+    /* waiting → typing transition (runs every time phase becomes 'waiting') */
     useEffect(() => {
-        let cancelled = false;
-        function run() {
-            reset();
-            // waiting phase
-            enqueue(() => { if (!cancelled) setPhase('typing'); }, 1200);
-        }
-        run();
-        return () => { cancelled = true; reset(); };
-    }, [enqueue, reset]);
+        if (phase !== 'waiting') return;
+        const id = setTimeout(() => setPhase('typing'), 1200);
+        return () => clearTimeout(id);
+    }, [phase]);
 
     /* typing phase — advance chars */
     useEffect(() => {
