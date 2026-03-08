@@ -81,7 +81,7 @@ function DesktopSidebar() {
                         </div>
                         <div style={{ fontFamily: "'DM Sans', sans-serif" }} className="text-[22px] leading-none flex items-baseline tracking-tight">
                             <span className="text-white font-extrabold">Rout</span>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-amber-600 font-extrabold ml-[1px]">igo</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-amber-600 font-extrabold ml-[1px]">Aura</span>
                         </div>
                     </div>
                 </div>

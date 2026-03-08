@@ -25,7 +25,7 @@ export default function Header({ rightElement }) {
                     <div className="flex flex-col justify-center translate-y-[1px]">
                         <div style={{ fontFamily: "'DM Sans', sans-serif" }} className="text-[26px] sm:text-[32px] leading-none flex items-baseline tracking-tight">
                             <span className="text-white font-extrabold group-hover:text-gray-100 transition-colors">Rout</span>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-amber-600 font-extrabold ml-[1px] group-hover:from-orange-400 group-hover:to-red-500 transition-all duration-500">igo</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-500 to-amber-600 font-extrabold ml-[1px] group-hover:from-orange-400 group-hover:to-red-500 transition-all duration-500">Aura</span>
                         </div>
                     </div>
                 </div>
