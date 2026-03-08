@@ -265,3 +265,18 @@ A race condition existed between Supabase JS's asynchronous local storage writes
 ### Resolution Implemented
 1. **Interceptor Breather Wait-State:** Updated the Axios request interceptor in `api/client.js`. If the interceptor finds `session?.access_token` to be null on the first attempt, it intentionally forces a `500ms` asynchronous wait (`await new Promise(r => setTimeout(r, 500))`) before retrying the `getSession()` call. This allows pending Supabase storage writes to safely resolve before dispatching the outbound HTTP packet.
 2. **Explicit Token Passing via Zustand:** Refactored `authStore.js` and `AuthScreen.jsx` so that the `login()` and `signup()` API responses directly return the extracted raw `access_token` and pass it synchronously into the Zustand `setUser(data.user, data.access_token)` mapper immediately prior to navigation, eliminating the frontend's reliance on asynchronous `supabase.auth.getSession()` for core React hydration states.
+
+## Issue 17: White Screen on Navigation to Auth Routes (SPA Hard Reload)
+**Phase:** Frontend Routing / Production Polish
+**Date Identified:** March 7, 2026
+**Severity:** MEDIUM (Intermittent White Screen UX Issue)
+
+### Description
+When navigating from the landing page to the Login or Signup screen, the app occasionally rendered a completely blank white screen. A manual browser refresh was required to make the page finish loading.
+
+### Root Cause Analysis
+The LandingPage CTA buttons, Desktop Navbar links, and Mobile Menu items were built using standard HTML `<a>` tags (e.g., `<a href="/login">`). Since RoutAura is a Single Page Application (SPA), clicking a standard anchor tag forces the browser to discard the current DOM and perform a full "hard reload" of the page. This hard reload triggered during routing caused a race condition with the authentication state's core hydration logic (which runs on the initial component mount cycle), occasionally resulting in a blank white screen render if the hydration check evaluated out of sync with the React Router.
+
+### Resolution Implemented
+1. **Client-Side Navigation:** Replaced all `<a>` tags pointing to internal routes throughout the `LandingPage.jsx` (Hero CTAs, Navbar, Mobile Menu) with React Router `<Link to="...">` components.
+2. **Hydration Protection:** This ensures navigation happens instantly client-side via React Router without destroying the DOM or triggering full browser hard-reloads, completely bypassing the hydration race condition that caused the white screen.

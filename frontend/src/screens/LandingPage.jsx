@@ -8,6 +8,7 @@ import {
     ChevronDown, ArrowRight, Star, Menu, X, MessageSquare,
     Navigation, Globe, Truck
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 
 /* ──────────────────────────────────────────────
@@ -748,9 +749,8 @@ export default function LandingPage() {
                                 <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-amber-400 rounded-full group-hover:w-4 transition-all duration-300" />
                             </a>
                         ))}
-                        <div className="w-px h-5 bg-white/[0.1] mx-1" />
-                        <a href="/login" className="px-4 py-2 text-white/55 hover:text-white text-[13px] font-medium transition-all duration-200 rounded-full hover:bg-white/[0.06]" style={{ minWidth: 0, minHeight: 0 }}>Sign In</a>
-                        <a href="/signup" className="ml-1 px-5 py-2 rounded-full bg-[#F59E0B] text-[#0D1117] text-[13px] font-bold hover:bg-amber-400 transition-all duration-200 active:scale-95 shadow-[0_0_20px_rgba(245,158,11,0.25)]" style={{ minWidth: 0, minHeight: 0 }}>Get Started</a>
+                        <Link to="/login" className="px-4 py-2 text-white/55 hover:text-white text-[13px] font-medium transition-all duration-200 rounded-full hover:bg-white/[0.06]" style={{ minWidth: 0, minHeight: 0 }}>Sign In</Link>
+                        <Link to="/signup" className="ml-1 px-5 py-2 rounded-full bg-[#F59E0B] text-[#0D1117] text-[13px] font-bold hover:bg-amber-400 transition-all duration-200 active:scale-95 shadow-[0_0_20px_rgba(245,158,11,0.25)]" style={{ minWidth: 0, minHeight: 0 }}>Get Started</Link>
                     </div>
 
                     {/* Mobile hamburger */}
@@ -767,8 +767,8 @@ export default function LandingPage() {
                                 <a key={link.href} href={link.href} onClick={() => setMobileMenuOpen(false)} className="text-white/60 hover:text-white text-[14px] font-medium py-2 transition-colors">{link.label}</a>
                             ))}
                             <div className="border-t border-white/[0.06] pt-3 mt-1 flex flex-col gap-2">
-                                <a href="/login" className="text-white/60 hover:text-white text-[14px] font-medium py-2 transition-colors">Sign In</a>
-                                <a href="/signup" className="inline-block text-center px-5 py-3 rounded-xl bg-[#F59E0B] text-[#0D1117] text-[14px] font-bold hover:brightness-110 transition-all">Get Started Free</a>
+                                <Link to="/login" className="text-white/60 hover:text-white text-[14px] font-medium py-2 transition-colors">Sign In</Link>
+                                <Link to="/signup" className="inline-block text-center px-5 py-3 rounded-xl bg-[#F59E0B] text-[#0D1117] text-[14px] font-bold hover:brightness-110 transition-all">Get Started Free</Link>
                             </div>
                         </div>
                     </div>
@@ -1443,12 +1443,12 @@ export default function LandingPage() {
                         <p className="text-[15px] sm:text-base mb-8" style={{ color: '#94A3B8' }}>Free forever. No credit card. Set up in 30 seconds.</p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
-                            <a href="/signup" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#F59E0B] text-[#0D1117] text-[16px] font-bold hover:brightness-110 transition-all active:scale-95 shadow-[0_0_30px_rgba(245,158,11,0.4)]">
+                            <Link to="/signup" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#F59E0B] text-[#0D1117] text-[16px] font-bold hover:brightness-110 transition-all active:scale-95 shadow-[0_0_30px_rgba(245,158,11,0.4)]">
                                 Get Started Free <ArrowRight className="w-4 h-4" />
-                            </a>
-                            <a href="/login" className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-xl border border-white/[0.1] text-white/70 text-[16px] font-medium hover:bg-white/[0.05] hover:text-white transition-all">
+                            </Link>
+                            <Link to="/login" className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 rounded-xl border border-white/[0.1] text-white/70 text-[16px] font-medium hover:bg-white/[0.05] hover:text-white transition-all">
                                 Sign In
-                            </a>
+                            </Link>
                         </div>
 
                         <div className="flex items-center justify-center gap-3">
